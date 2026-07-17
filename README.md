@@ -1,6 +1,6 @@
 # BoundaryCI
 
-[![CI](https://github.com/eurogigolo/boundaryci/actions/workflows/ci.yml/badge.svg)](https://github.com/eurogigolo/boundaryci/actions/workflows/ci.yml)
+[![CI](https://github.com/sir-gig/boundaryci/actions/workflows/ci.yml/badge.svg)](https://github.com/sir-gig/boundaryci/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Catch cross-tenant authorization mistakes before a SaaS migration reaches production.
@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: eurogigolo/boundaryci@v0.1.1
+      - uses: sir-gig/boundaryci@v0.1.2
         with:
           target: .
           fail-on: high

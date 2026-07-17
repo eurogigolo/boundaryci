@@ -1,17 +1,17 @@
 {
   "name": "boundaryci",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Continuous tenant-isolation testing for Supabase and multi-tenant SaaS.",
   "private": true,
   "license": "MIT",
   "author": "Ryan",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eurogigolo/boundaryci.git"
+    "url": "git+https://github.com/sir-gig/boundaryci.git"
   },
-  "homepage": "https://github.com/eurogigolo/boundaryci#readme",
+  "homepage": "https://github.com/sir-gig/boundaryci#readme",
   "bugs": {
-    "url": "https://github.com/eurogigolo/boundaryci/issues"
+    "url": "https://github.com/sir-gig/boundaryci/issues"
   },
   "keywords": [
     "supabase",

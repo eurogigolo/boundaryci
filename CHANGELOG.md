@@ -2,6 +2,12 @@
 
 All notable changes to BoundaryCI are documented here.
 
+## 0.1.2 - 2026-07-17
+
+### Changed
+
+- Update repository, Action, badge, ownership, and package links for the `sir-gig` GitHub namespace.
+
 ## 0.1.1 - 2026-07-17
 
 ### Fixed

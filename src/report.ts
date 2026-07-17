@@ -168,7 +168,7 @@ export function toSarif(report: ScanReport): object {
           driver: {
             name: report.tool.name,
             version: report.tool.version,
-            informationUri: "https://github.com/eurogigolo/boundaryci",
+            informationUri: "https://github.com/sir-gig/boundaryci",
             rules,
           },
         },
