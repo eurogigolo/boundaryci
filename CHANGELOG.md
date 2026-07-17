@@ -2,6 +2,16 @@
 
 All notable changes to BoundaryCI are documented here.
 
+## 0.1.6 - 2026-07-17
+
+### Added
+
+- End-user terms, privacy notice, support policy, and an AI-output feedback template.
+
+### Fixed
+
+- Publish with npm 12 and explicit provenance so GitHub OIDC is used instead of unauthenticated registry fallback.
+
 ## 0.1.5 - 2026-07-17
 
 ### Added

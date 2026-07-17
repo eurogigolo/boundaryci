@@ -164,7 +164,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: sir-gig/boundaryci@v0.1.5
+      - uses: sir-gig/boundaryci@v0.1.6
         with:
           target: .
           fail-on: high
@@ -203,6 +203,12 @@ The test suite includes deliberately vulnerable and secure migration sets, parse
 Object-level authorization remains the first category in the [OWASP API Security Top 10 (2023)](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/). RLS is powerful, but a single permissive policy or privileged helper can turn a tenant ID into a data breach. BoundaryCI makes that boundary a repeatable pull-request check rather than a one-time review.
 
 Fireworks integration uses its OpenAI-compatible chat-completions API and [structured response formatting](https://docs.fireworks.ai/structured-responses/structured-response-formatting).
+
+## Terms, privacy, and support
+
+- Use of BoundaryCI is governed by the [End User License Agreement](EULA.md).
+- BoundaryCI's data handling is described in the [Privacy Notice](PRIVACY.md).
+- Bug reports, AI-output feedback, and security-reporting routes are documented in [Support](SUPPORT.md).
 
 ## License
 

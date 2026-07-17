@@ -1,11 +1,14 @@
 {
   "name": "boundaryci",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Continuous tenant-isolation testing for Supabase and multi-tenant SaaS.",
   "license": "MIT",
   "author": "Ryan",
   "files": [
-    "dist"
+    "dist",
+    "EULA.md",
+    "PRIVACY.md",
+    "SUPPORT.md"
   ],
   "publishConfig": {
     "access": "public"

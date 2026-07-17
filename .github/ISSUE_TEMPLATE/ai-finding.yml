@@ -1,0 +1,49 @@
+name: AI finding feedback
+description: Report an incorrect, unsafe, or unclear Fireworks-generated finding.
+title: "[AI finding]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not submit credentials, personal data, customer identifiers, or proprietary migrations. Reports on this form are public.
+  - type: input
+    id: boundaryci-version
+    attributes:
+      label: BoundaryCI version
+      placeholder: 0.1.6
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Fireworks model
+      placeholder: accounts/fireworks/models/deepseek-v4-flash
+    validations:
+      required: true
+  - type: textarea
+    id: finding
+    attributes:
+      label: Generated finding
+      description: Paste the finding after removing confidential information.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: Explain why the finding is incorrect, unsafe, or unclear.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Sanitized reproduction
+      description: Optional minimal SQL that you are authorized to disclose.
+      render: sql
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Disclosure confirmation
+      options:
+        - label: I removed credentials, personal data, customer identifiers, and confidential material.
+          required: true
