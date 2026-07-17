@@ -1,0 +1,18 @@
+{
+  "databaseProfile": "auto",
+  "migrationDirectories": ["supabase/migrations"],
+  "exposedSchemas": ["public"],
+  "ignoreTables": ["public.schema_migrations", "public.spatial_ref_sys"],
+  "failOn": "high",
+  "adoption": {
+    "baselineFile": ".boundaryci/baseline.json",
+    "waiversFile": ".boundaryci/waivers.json"
+  },
+  "fireworks": {
+    "enabled": false,
+    "required": false,
+    "model": "accounts/fireworks/models/deepseek-v4-flash",
+    "includeInExitCode": false,
+    "maxInputCharacters": 80000
+  }
+}

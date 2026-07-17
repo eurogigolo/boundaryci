@@ -1,0 +1,49 @@
+{
+  "name": "boundaryci",
+  "version": "0.1.0",
+  "description": "Continuous tenant-isolation testing for Supabase and multi-tenant SaaS.",
+  "private": true,
+  "license": "MIT",
+  "author": "Ryan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eurogigolo/boundaryci.git"
+  },
+  "homepage": "https://github.com/eurogigolo/boundaryci#readme",
+  "bugs": {
+    "url": "https://github.com/eurogigolo/boundaryci/issues"
+  },
+  "keywords": [
+    "supabase",
+    "postgresql",
+    "row-level-security",
+    "tenant-isolation",
+    "security",
+    "github-action"
+  ],
+  "type": "module",
+  "bin": {
+    "boundaryci": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "tsx src/cli.ts",
+    "scan:example": "tsx src/cli.ts scan examples/vulnerable-supabase --fail-on none"
+  },
+  "dependencies": {
+    "commander": "^14.0.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.0"
+  }
+}

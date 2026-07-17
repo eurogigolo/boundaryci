@@ -1,0 +1,42 @@
+name: BoundaryCI tenant-isolation scan
+description: Fail a pull request when Supabase migrations introduce tenant-isolation hazards.
+author: Ryan
+branding:
+  icon: shield
+  color: purple
+inputs:
+  profile:
+    description: Database exposure profile (auto, supabase, or postgres).
+    default: auto
+  target:
+    description: Repository-relative directory or SQL migration file to scan.
+    default: .
+  fail-on:
+    description: Minimum deterministic severity that fails the action.
+    default: high
+  fireworks:
+    description: Set to true to run the optional Fireworks semantic review.
+    default: "false"
+  require-fireworks:
+    description: Set to true to fail when the Fireworks review is unavailable.
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - name: Build BoundaryCI
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: npm ci --ignore-scripts && npm run build
+    - name: Scan tenant boundaries
+      shell: bash
+      env:
+        BOUNDARYCI_TARGET: ${{ inputs.target }}
+        BOUNDARYCI_PROFILE: ${{ inputs.profile }}
+        BOUNDARYCI_FAIL_ON: ${{ inputs.fail-on }}
+        BOUNDARYCI_FIREWORKS: ${{ inputs.fireworks }}
+        BOUNDARYCI_REQUIRE_FIREWORKS: ${{ inputs.require-fireworks }}
+      run: |
+        args=()
+        if [[ "$BOUNDARYCI_FIREWORKS" == "true" ]]; then args+=(--fireworks); fi
+        if [[ "$BOUNDARYCI_REQUIRE_FIREWORKS" == "true" ]]; then args+=(--require-fireworks); fi
+        node "${{ github.action_path }}/dist/cli.js" scan "$GITHUB_WORKSPACE/$BOUNDARYCI_TARGET" --profile "$BOUNDARYCI_PROFILE" --format github --fail-on "$BOUNDARYCI_FAIL_ON" "${args[@]}"
