@@ -2,6 +2,13 @@
 
 All notable changes to BoundaryCI are documented here.
 
+## 0.1.3 - 2026-07-17
+
+### Added
+
+- Publishable npm package metadata and a prepack verification gate.
+- npm and Windows PowerShell installation instructions.
+
 ## 0.1.2 - 2026-07-17
 
 ### Changed

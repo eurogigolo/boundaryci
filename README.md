@@ -12,10 +12,10 @@ BoundaryCI is a local-first CLI for Supabase and PostgreSQL projects. It reconst
 ## Quick start
 
 ```bash
-npm install
-npm run build
-node dist/cli.js scan /path/to/your/supabase-project
+npx boundaryci scan /path/to/your/supabase-project
 ```
+
+In Windows PowerShell, use `npx.cmd boundaryci scan .` when script execution policy blocks the `npx.ps1` wrapper.
 
 BoundaryCI exits with code `1` when a **new, non-waived** deterministic finding meets the configured threshold, `0` when the scan passes, and `2` for configuration or runtime errors.
 
@@ -47,14 +47,14 @@ The parser follows migration order and accounts for later RLS changes, policy ch
 Create a baseline after reviewing the current deterministic findings:
 
 ```bash
-node dist/cli.js baseline .
+npx boundaryci baseline .
 git add .boundaryci/baseline.json
 ```
 
 The normal scan now reports those findings as `BASELINE` and exits successfully. A changed or newly introduced finding receives a stable fingerprint, is marked `NEW`, and can fail CI:
 
 ```bash
-node dist/cli.js scan .
+npx boundaryci scan .
 ```
 
 Fingerprints ignore line-number and whitespace-only changes. A meaningful change to the vulnerable SQL produces a new fingerprint. Use `--ignore-baseline` to audit everything as new.
@@ -62,7 +62,7 @@ Fingerprints ignore line-number and whitespace-only changes. A meaningful change
 When a risk must be accepted temporarily, create an owned waiver using the fingerprint printed by the scan:
 
 ```bash
-node dist/cli.js waive 785692dd876680a9e329bba8 . \
+npx boundaryci waive 785692dd876680a9e329bba8 . \
   --owner security-team \
   --reason "Legacy shared table; replacement is tracked in SEC-142." \
   --expires 2026-12-31
@@ -87,19 +87,19 @@ In PowerShell:
 
 ```powershell
 $env:FIREWORKS_API_KEY = "your-key"
-node dist/cli.js scan . --fireworks
+npx.cmd boundaryci scan . --fireworks
 ```
 
 Fireworks findings are advisory by default. To include them in the CI exit decision:
 
 ```bash
-node dist/cli.js scan . --fireworks --include-ai-in-exit-code
+npx boundaryci scan . --fireworks --include-ai-in-exit-code
 ```
 
 If Fireworks is unavailable, the deterministic scan still completes and prints a warning. Use `--require-fireworks` when an unavailable semantic review must instead produce exit code `2`:
 
 ```bash
-node dist/cli.js scan . --require-fireworks
+npx boundaryci scan . --require-fireworks
 ```
 
 The integration requests schema-constrained JSON, validates every returned file and field, and redacts common token, JWT, password, secret, and API-key patterns before sending SQL. Redaction is defense-in-depth, not a guarantee: do not store production credentials in migrations. Enabling this option sends migration text to Fireworks under your Fireworks account and data settings.
@@ -111,7 +111,7 @@ The default model is `accounts/fireworks/models/deepseek-v4-flash`. Override it 
 Create a starter file:
 
 ```bash
-node dist/cli.js init
+npx boundaryci init
 ```
 
 `boundaryci.config.json`:
@@ -144,10 +144,10 @@ node dist/cli.js init
 Supported formats are terminal output, JSON, SARIF, and native GitHub workflow annotations:
 
 ```bash
-node dist/cli.js scan . --format json --output boundaryci.json
-node dist/cli.js scan . --format sarif --output boundaryci.sarif
-node dist/cli.js scan . --format github
-node dist/cli.js scan . --fail-on critical
+npx boundaryci scan . --format json --output boundaryci.json
+npx boundaryci scan . --format sarif --output boundaryci.sarif
+npx boundaryci scan . --format github
+npx boundaryci scan . --fail-on critical
 ```
 
 SARIF and GitHub output contain only `NEW` findings. Pretty and JSON output retain baseline and waived findings for auditability.
@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: sir-gig/boundaryci@v0.1.2
+      - uses: sir-gig/boundaryci@v0.1.3
         with:
           target: .
           fail-on: high
