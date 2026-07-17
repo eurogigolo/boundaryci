@@ -21,3 +21,8 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: node dist/cli.js scan examples/vulnerable-supabase --fail-on none
+      - name: Smoke test composite Action
+        uses: ./
+        with:
+          target: test/fixtures/secure
+          fail-on: high

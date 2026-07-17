@@ -1,6 +1,6 @@
 {
   "name": "boundaryci",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Continuous tenant-isolation testing for Supabase and multi-tenant SaaS.",
   "private": true,
   "license": "MIT",
@@ -41,6 +41,8 @@
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
+    "@emnapi/core": "1.11.2",
+    "@emnapi/runtime": "1.11.2",
     "@types/node": "^24.0.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",

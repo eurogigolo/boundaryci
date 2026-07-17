@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: eurogigolo/boundaryci@v0.1.0
+      - uses: eurogigolo/boundaryci@v0.1.1
         with:
           target: .
           fail-on: high

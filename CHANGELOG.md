@@ -2,6 +2,13 @@
 
 All notable changes to BoundaryCI are documented here.
 
+## 0.1.1 - 2026-07-17
+
+### Fixed
+
+- Include the optional WASM runtime dependency closure required by clean npm installs on Linux GitHub runners.
+- Exercise the composite Action itself in CI.
+
 ## 0.1.0 - 2026-07-17
 
 ### Added
