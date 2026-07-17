@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: sir-gig/boundaryci@v0.1.3
+      - uses: sir-gig/boundaryci@v0.1.4
         with:
           target: .
           fail-on: high

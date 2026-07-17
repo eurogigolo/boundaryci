@@ -2,6 +2,12 @@
 
 All notable changes to BoundaryCI are documented here.
 
+## 0.1.4 - 2026-07-17
+
+### Fixed
+
+- Preserve the `boundaryci` executable mapping when npm normalizes package metadata.
+
 ## 0.1.3 - 2026-07-17
 
 ### Added
