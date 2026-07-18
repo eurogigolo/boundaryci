@@ -70,9 +70,16 @@ GitHub:      https://github.com/sir-gig/boundaryci
 npm:         https://www.npmjs.com/package/boundaryci
 Marketplace: https://github.com/marketplace/actions/boundaryci-tenant-isolation-scan
 
-Version 0.2.0 adds the first BoundaryCI Cloud product foundation. The project has automated tests, release automation,
-npm supply-chain provenance, documentation, legal terms, privacy information,
-and a support process.
+Version 0.2.0 adds BoundaryCI Cloud. Customers can create an account and
+organization, connect a repository, generate a repository-bound upload token,
+and see durable scan history and finding details in a hosted dashboard. The
+Cloud control plane enforces tenant-safe reads and monthly usage limits.
+
+The paid-product implementation adds Stripe-hosted Checkout, a self-service
+billing portal, signed and idempotent subscription webhooks, monthly and annual
+plans, and automatic scan-capacity changes based on payment status. The project
+also has automated tests, release automation, npm supply-chain provenance,
+documentation, legal terms, privacy information, and a support process.
 
 
 WHAT IT DOES NOT DO YET
@@ -90,14 +97,15 @@ B's records rather than only inspecting the SQL policies.
 HOW DOES IT MAKE MONEY?
 -----------------------
 
-The honest answer is that the current open-source package does not make money
-by itself. It is the free entry point that creates distribution, demonstrates
-expertise, earns trust, and brings SaaS teams into a future paid product.
+The open-source package remains the free entry point. It creates distribution,
+demonstrates expertise, earns trust, and brings SaaS teams into the paid
+BoundaryCI Cloud product.
 
 The business should keep the local scanner useful and free. Companies would pay
 for BoundaryCI Cloud, the shared operational and testing layer around it.
 
-Paid capabilities could include:
+The first paid plans sell higher Cloud scan capacity and the shared hosted
+workflow. Future higher-value capabilities can include:
 
 * A GitHub App that installs BoundaryCI across every repository in a company.
 * A central dashboard showing risks, trends, ownership, and remediation status.
@@ -123,13 +131,13 @@ Free / Open Source
     Local CLI, deterministic rules, GitHub Action, and bring-your-own Fireworks
     key. This drives adoption.
 
-Team - approximately $99 per month
-    Several repositories, hosted dashboard, managed policy, history, alerts,
-    and a monthly allowance of managed AI reviews.
+Team - $49 per month or $490 per year
+    Hosted dashboard, organization-wide history, repository-bound upload
+    tokens, Fireworks AI finding storage, and 1,000 Cloud scans per month.
 
-Growth - approximately $299 to $499 per month
-    More repositories, active tenant tests, audit evidence, integrations,
-    longer history, and higher usage limits.
+Growth - $149 per month or $1,490 per year
+    Everything in Team, priority product support, and 10,000 Cloud scans per
+    month for multi-repository continuous integration.
 
 Enterprise - custom annual contract
     SSO, RBAC, audit logs, private runners or networking, compliance support,
@@ -139,9 +147,10 @@ Usage-based charges could cover unusually large numbers of active tests or AI
 reviews, but the primary price should be based on business value and company
 size, not small token markups.
 
-At $99 per month, 100 Team customers would produce $9,900 in monthly recurring
-revenue. A smaller number of Growth and Enterprise accounts could increase that
-substantially. These are illustrations, not revenue forecasts.
+At $49 per month, 100 Team customers would produce $4,900 in monthly recurring
+revenue. Twenty Growth customers would add $2,980. Enterprise accounts and
+future active testing can increase that substantially. These are illustrations,
+not revenue forecasts.
 
 
 WHO WOULD PAY FOR IT?

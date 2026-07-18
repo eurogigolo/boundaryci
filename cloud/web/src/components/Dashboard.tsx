@@ -1,10 +1,12 @@
 import type { Session } from "@supabase/supabase-js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { errorMessage } from "../lib/errors";
+import { planName } from "../lib/billing";
 import { formatRelative, highestSeverity, shortCommit } from "../lib/format";
 import { requireSupabase } from "../lib/supabase";
 import type { IngestionKeyResult, Organization, Repository, ScanRun } from "../types";
 import { Brand } from "./Brand";
+import { Billing } from "./Billing";
 import { OrganizationOnboarding, RepositoryOnboarding } from "./Onboarding";
 import { ScanDetail } from "./ScanDetail";
 import { TokenReveal } from "./TokenReveal";
@@ -18,6 +20,8 @@ interface RevealedToken {
   repository: Repository;
   token: string;
 }
+
+type DashboardView = "overview" | "history" | "billing";
 
 export function Dashboard({ session }: { session: Session }) {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -33,13 +37,20 @@ export function Dashboard({ session }: { session: Session }) {
   const [revealedToken, setRevealedToken] = useState<RevealedToken | null>(null);
   const [repositoryFilter, setRepositoryFilter] = useState<string>("all");
   const [creatingTokenFor, setCreatingTokenFor] = useState<string | null>(null);
+  const [organizationRole, setOrganizationRole] = useState<string | null>(null);
+  const billingResult = new URLSearchParams(window.location.search).get("billing");
+  const [dashboardView, setDashboardView] = useState<DashboardView>(
+    billingResult ? "billing" : "overview",
+  );
 
   const loadOrganizations = useCallback(async (preferredId?: string) => {
     setLoadingOrganizations(true);
     setError(null);
     const { data, error: queryError } = await requireSupabase()
       .from("organizations")
-      .select("id, name, slug, plan, subscription_status, monthly_scan_limit, current_period_end")
+      .select(
+        "id, name, slug, plan, subscription_status, monthly_scan_limit, billing_interval, current_period_start, current_period_end, cancel_at_period_end",
+      )
       .order("created_at", { ascending: true });
     if (queryError) {
       setError(queryError.message);
@@ -64,7 +75,7 @@ export function Dashboard({ session }: { session: Session }) {
     monthStart.setUTCDate(1);
     monthStart.setUTCHours(0, 0, 0, 0);
 
-    const [repositoryResult, runResult, usageResult, findingResult] = await Promise.all([
+    const [repositoryResult, runResult, usageResult, findingResult, membershipResult] = await Promise.all([
       requireSupabase()
         .from("repositories")
         .select("id, organization_id, full_name, default_branch, active, created_at")
@@ -88,18 +99,31 @@ export function Dashboard({ session }: { session: Session }) {
         .select("id", { count: "exact", head: true })
         .eq("organization_id", organizationId)
         .eq("disposition", "new"),
+      requireSupabase()
+        .from("organization_members")
+        .select("role")
+        .eq("organization_id", organizationId)
+        .eq("user_id", session.user.id)
+        .single(),
     ]);
 
-    const firstError = [repositoryResult.error, runResult.error, usageResult.error, findingResult.error].find(Boolean);
+    const firstError = [
+      repositoryResult.error,
+      runResult.error,
+      usageResult.error,
+      findingResult.error,
+      membershipResult.error,
+    ].find(Boolean);
     if (firstError) setError(firstError.message);
     else {
       setRepositories((repositoryResult.data ?? []) as Repository[]);
       setRuns((runResult.data ?? []) as ScanRun[]);
       setMonthlyUsage(usageResult.count ?? 0);
       setOpenFindings(findingResult.count ?? 0);
+      setOrganizationRole(membershipResult.data?.role ?? null);
     }
     setLoadingWorkspace(false);
-  }, []);
+  }, [session.user.id]);
 
   useEffect(() => {
     void loadOrganizations();
@@ -114,6 +138,25 @@ export function Dashboard({ session }: { session: Session }) {
     setSelectedScan(null);
     setRepositoryFilter("all");
   }, [loadWorkspace, selectedOrganizationId]);
+
+  useEffect(() => {
+    if (dashboardView !== "history") return;
+    window.setTimeout(() => {
+      document.querySelector(".runs-section")?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
+  }, [dashboardView]);
+
+  useEffect(() => {
+    if (billingResult !== "success" || !selectedOrganizationId) return;
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      attempts += 1;
+      void loadOrganizations(selectedOrganizationId);
+      void loadWorkspace(selectedOrganizationId);
+      if (attempts >= 5) window.clearInterval(timer);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [billingResult, loadOrganizations, loadWorkspace, selectedOrganizationId]);
 
   const selectedOrganization = organizations.find(
     (organization) => organization.id === selectedOrganizationId,
@@ -181,21 +224,42 @@ export function Dashboard({ session }: { session: Session }) {
           </select>
         </div>
         <nav>
-          <button className="active" type="button" onClick={() => setSelectedScan(null)}>
+          <button
+            className={dashboardView === "overview" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setSelectedScan(null);
+              setDashboardView("overview");
+            }}
+          >
             <span>⌁</span> Overview
           </button>
-          <button type="button" onClick={() => setSelectedScan(null)}>
+          <button
+            className={dashboardView === "history" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setSelectedScan(null);
+              setDashboardView("history");
+            }}
+          >
             <span>▤</span> Scan history
           </button>
           <button type="button" disabled title="Team management is the next private-beta slice">
             <span>♙</span> Team <em>Soon</em>
           </button>
-          <button type="button" disabled title="Billing activates after the first design-partner run">
-            <span>◇</span> Billing <em>Soon</em>
+          <button
+            className={dashboardView === "billing" ? "active" : ""}
+            type="button"
+            onClick={() => {
+              setSelectedScan(null);
+              setDashboardView("billing");
+            }}
+          >
+            <span>◇</span> Billing
           </button>
         </nav>
         <div className="sidebar-plan">
-          <div><span>{selectedOrganization.plan}</span><b>{monthlyUsage} / {selectedOrganization.monthly_scan_limit || "∞"}</b></div>
+          <div><span>{planName(selectedOrganization.plan)}</span><b>{monthlyUsage} / {selectedOrganization.monthly_scan_limit || "∞"}</b></div>
           <div className="usage-track"><i style={{ width: `${selectedOrganization.monthly_scan_limit ? Math.min(100, (monthlyUsage / selectedOrganization.monthly_scan_limit) * 100) : 0}%` }} /></div>
           <small>scans used this month</small>
         </div>
@@ -206,7 +270,18 @@ export function Dashboard({ session }: { session: Session }) {
       </aside>
 
       <main className="dashboard-main">
-        {selectedScan ? (
+        {dashboardView === "billing" ? (
+          <Billing
+            organization={selectedOrganization}
+            monthlyUsage={monthlyUsage}
+            canManage={organizationRole === "owner" || organizationRole === "admin"}
+            result={billingResult}
+            onRefresh={() => {
+              void loadOrganizations(selectedOrganization.id);
+              void loadWorkspace(selectedOrganization.id);
+            }}
+          />
+        ) : selectedScan ? (
           <ScanDetail
             run={selectedScan.run}
             repository={selectedScan.repository}

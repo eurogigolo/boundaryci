@@ -33,14 +33,22 @@ BoundaryCI does not require Fireworks. If you enable the Fireworks review, migra
 
 Support routes and version coverage are described in [SUPPORT.md](SUPPORT.md). The Developer may change, suspend, or discontinue features or distribution of BoundaryCI. Updates may introduce different behavior and are governed by the terms included with that update.
 
-## 6. Warranty and liability
+## 6. BoundaryCI Cloud subscriptions
+
+BoundaryCI Cloud offers a limited free plan and optional recurring paid plans. Paid prices, billing interval, included usage, currency, and applicable trial or promotion are shown before you authorize Stripe Checkout. Unless the checkout terms say otherwise, subscriptions renew automatically until canceled.
+
+Stripe processes payments and may collect billing addresses and tax identifiers. You authorize the applicable recurring charges, taxes, and fees. You can manage payment methods, invoices, plan changes, and cancellation through the hosted billing portal. Cancellation normally takes effect at the end of the current paid period. Charges are non-refundable except where required by law or expressly agreed in writing.
+
+Cloud ingestion may be limited or suspended when a usage allowance is exhausted or a subscription is inactive, unpaid, canceled, paused, incomplete, or past due. The Developer may change future plan pricing or allowances with reasonable notice; a change to recurring pricing applies no earlier than permitted by Stripe and applicable law.
+
+## 7. Warranty and liability
 
 BoundaryCI is provided under the warranty disclaimer and limitation of liability in the MIT License. To the maximum extent permitted by applicable law, you assume the risk of using BoundaryCI and of relying on its findings.
 
-## 7. Termination
+## 8. Termination
 
 Your rights under this Agreement terminate if you materially violate it. Provisions concerning limitations, responsibility, and third-party services survive termination to the extent applicable.
 
-## 8. Contact
+## 9. Contact
 
 For questions about these terms, open a GitHub issue without including confidential information: <https://github.com/sir-gig/boundaryci/issues>.

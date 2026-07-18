@@ -19,7 +19,9 @@ function json(status: number, body: Record<string, unknown>): Response {
 async function sha256(value: string): Promise<string> {
   const bytes = new TextEncoder().encode(value);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return [...new Uint8Array(digest)].map((byte) =>
+    byte.toString(16).padStart(2, "0")
+  ).join("");
 }
 
 function statusForDatabaseError(error: DatabaseError): number {
@@ -78,22 +80,27 @@ Deno.serve(async (request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceRoleKey) {
-    console.error("BoundaryCI Cloud is missing its Supabase service configuration.");
+    console.error(
+      "BoundaryCI Cloud is missing its Supabase service configuration.",
+    );
     return json(503, { error: "BoundaryCI Cloud is temporarily unavailable." });
   }
 
-  const databaseResponse = await fetch(`${supabaseUrl}/rest/v1/rpc/ingest_scan`, {
-    method: "POST",
-    headers: {
-      apikey: serviceRoleKey,
-      Authorization: `Bearer ${serviceRoleKey}`,
-      "Content-Type": "application/json",
+  const databaseResponse = await fetch(
+    `${supabaseUrl}/rest/v1/rpc/ingest_scan`,
+    {
+      method: "POST",
+      headers: {
+        apikey: serviceRoleKey,
+        Authorization: `Bearer ${serviceRoleKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        key_sha256: await sha256(token),
+        payload,
+      }),
     },
-    body: JSON.stringify({
-      key_sha256: await sha256(token),
-      payload,
-    }),
-  });
+  );
 
   const databaseBody = await databaseResponse.text();
   if (!databaseResponse.ok) {
