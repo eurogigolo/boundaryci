@@ -1,6 +1,6 @@
 # BoundaryCI Support
 
-BoundaryCI is an open-source project currently provided without a paid support plan or service-level agreement.
+BoundaryCI is an open-source project with optional paid BoundaryCI Cloud plans. Paid subscriptions provide the product capacity shown at checkout but do not include a guaranteed response time, uptime commitment, managed security service, or service-level agreement unless a separate Enterprise agreement says so.
 
 ## General help and bug reports
 
@@ -8,7 +8,7 @@ Use [GitHub Issues](https://github.com/sir-gig/boundaryci/issues) for reproducib
 
 Include the BoundaryCI version, operating system, command, sanitized output, and a minimal reproduction when possible. Remove credentials, personal data, customer identifiers, and proprietary migrations before submitting anything publicly.
 
-Support is provided on a reasonable-effort basis. The latest tagged release is the supported version. BoundaryCI is not an emergency incident-response or managed security service.
+Support is provided on a reasonable-effort basis, with paid Growth and Enterprise requests prioritized when practical. The latest tagged release is the supported version. BoundaryCI is not an emergency incident-response or managed security service.
 
 ## AI-output feedback
 

@@ -5,6 +5,8 @@
 [![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-BoundaryCI-blue?logo=github)](https://github.com/marketplace/actions/boundaryci-tenant-isolation-scan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+[BoundaryCI website and Cloud dashboard](https://boundaryci.com/)
+
 Catch cross-tenant authorization mistakes before a SaaS migration reaches production.
 
 BoundaryCI is a local-first CLI for Supabase and PostgreSQL projects. It reconstructs the final security state from SQL migrations, applies deterministic tenant-isolation rules, and can optionally ask a Fireworks model to review policy interactions that static rules cannot reliably understand.
@@ -173,7 +175,7 @@ jobs:
 
 The action uses GitHub workflow commands to annotate the exact migration lines. Existing baseline findings and active waivers do not create annotations.
 
-## BoundaryCI Cloud private beta
+## BoundaryCI Cloud public beta
 
 The paid-product foundation is an opt-in scan-history service. Scanning still happens inside the customer's local environment or GitHub runner. With `--upload`, BoundaryCI sends a minimized result to a repository-bound Cloud endpoint after the local report has been produced:
 
@@ -198,6 +200,9 @@ In GitHub Actions, repository, commit, branch, and pull-request metadata are det
 Cloud upload is disabled by default. The payload contains repository identity, commit context, summary counts, finding metadata, and short evidence/remediation snippets. BoundaryCI removes the absolute scan target and migration-file list, excludes local warnings, normalizes finding paths, and applies its common-secret redaction before upload. It does not upload complete migration files. Redaction is defense-in-depth, so teams must still decide whether findings may leave their environment.
 
 The deployable Supabase schema and ingestion Edge Function live in [`cloud/supabase`](cloud/supabase). The control plane binds every ingestion token to one repository, stores only SHA-256 token hashes, makes retries idempotent, enforces subscription status and monthly scan limits, and applies row-level security to every tenant-owned table. See [`cloud/README.md`](cloud/README.md) for its security model and deployment path.
+
+Before accepting real customers, complete the [production launch checklist](PRODUCTION.md) for
+custom SMTP, password recovery, Stripe live mode, and the first live-payment smoke test.
 
 ## Product architecture
 

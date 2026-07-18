@@ -5,8 +5,14 @@ import { Brand } from "./Brand";
 
 type AuthMode = "signin" | "signup";
 
-export function AuthScreen() {
-  const [mode, setMode] = useState<AuthMode>("signin");
+export function AuthScreen({
+  initialMode = "signin",
+  publicUrl,
+}: {
+  initialMode?: AuthMode;
+  publicUrl: string;
+}) {
+  const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -93,8 +99,9 @@ export function AuthScreen() {
 
       <section className="auth-panel">
         <div className="auth-card">
+          <a className="auth-back" href={publicUrl}>← Back to BoundaryCI</a>
           <div className="auth-mobile-brand"><Brand /></div>
-          <span className="eyebrow">Private beta</span>
+          <span className="eyebrow">BoundaryCI Cloud</span>
           <h2>{mode === "signin" ? "Welcome back" : "Create your workspace"}</h2>
           <p className="muted">
             {mode === "signin"

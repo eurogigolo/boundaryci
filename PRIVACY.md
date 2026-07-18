@@ -2,7 +2,7 @@
 
 Effective date: July 17, 2026
 
-This notice explains how the BoundaryCI developer handles information when you use the BoundaryCI CLI, GitHub Action, or optional BoundaryCI Cloud private beta.
+This notice explains how the BoundaryCI developer handles information when you use the BoundaryCI CLI, GitHub Action, or optional BoundaryCI Cloud public beta.
 
 ## Local deterministic scans
 
@@ -20,7 +20,13 @@ BoundaryCI Cloud upload is disabled by default. When enabled, the CLI sends repo
 
 Before upload, the CLI removes the absolute scan target and migration-file inventory, excludes local warning messages, normalizes finding paths, limits field sizes, and applies common token, JWT, password, secret, and API-key redaction. Complete migration files and database credentials are not part of the Cloud payload. Redaction cannot guarantee that every confidential value is removed. Do not enable Cloud upload unless you are authorized to send the resulting finding data.
 
-Repository-bound ingestion tokens are used to authenticate uploads. BoundaryCI Cloud stores a SHA-256 hash rather than the plaintext token. Supabase hosts the private-beta control plane and processes the uploaded records on the Developer's behalf. Future production providers and retention periods will be identified before general availability.
+Repository-bound ingestion tokens are used to authenticate uploads. BoundaryCI Cloud stores a SHA-256 hash rather than the plaintext token. Supabase hosts the public-beta control plane and processes the uploaded records on the Developer's behalf. Retention periods may be refined before general availability.
+
+## Accounts and billing
+
+BoundaryCI Cloud uses Supabase Auth to process account identifiers such as your email address and authentication records. Organization membership, repository configuration, plan, usage, and subscription status are stored to provide the Cloud service.
+
+Stripe processes paid subscriptions, payment methods, invoices, tax identifiers, and billing addresses under Stripe's own privacy terms. BoundaryCI stores Stripe customer, subscription, and price identifiers plus subscription status and billing-period dates. The Developer does not receive or store your full payment-card number. Stripe sends signed webhook events to BoundaryCI so access and scan allowances remain synchronized with payment status.
 
 ## GitHub and npm
 
@@ -38,7 +44,7 @@ The Developer does not sell personal information. The Developer does not share s
 
 ## Retention and requests
 
-Local-only BoundaryCI use stores no information with the Developer. Cloud scan history is retained according to the applicable private-beta or subscription plan and may be deleted earlier when an organization or repository is removed. For GitHub submissions, use GitHub's controls. For Cloud or support information, contact the Developer to request access, correction, export, or deletion. Legal, billing, fraud-prevention, and security records may be retained when reasonably necessary.
+Local-only BoundaryCI use stores no information with the Developer. Cloud scan history is retained according to the applicable public-beta or subscription plan and may be deleted earlier when an organization or repository is removed. Stripe controls payment-method and invoice retention in its systems. BoundaryCI may retain subscription identifiers, webhook event identifiers, and billing status records when reasonably necessary for accounting, fraud prevention, dispute handling, and legal compliance. For GitHub submissions, use GitHub's controls. For Cloud or support information, contact the Developer to request access, correction, export, or deletion.
 
 ## Changes and contact
 

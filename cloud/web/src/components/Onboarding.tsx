@@ -61,7 +61,7 @@ export function OrganizationOnboarding({ onCreated }: { onCreated: (id: string) 
           <label>
             Workspace URL
             <div className="input-prefix">
-              <span>app.boundaryci.com/</span>
+              <span>boundaryci.com/</span>
               <input
                 value={slug}
                 onChange={(event) => {

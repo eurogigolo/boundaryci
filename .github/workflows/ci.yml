@@ -21,6 +21,7 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: node dist/cli.js scan examples/vulnerable-supabase --fail-on none
+      - run: node dist/cli.js scan cloud/supabase --fail-on high
       - name: Smoke test composite Action
         uses: ./
         with:
@@ -43,3 +44,19 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+  edge-functions:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloud/supabase
+    steps:
+      - uses: actions/checkout@v7
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno fmt --check functions
+      - run: deno check functions/create-checkout/index.ts
+      - run: deno check functions/create-portal/index.ts
+      - run: deno check functions/stripe-webhook/index.ts
+      - run: deno check functions/ingest-scan/index.ts

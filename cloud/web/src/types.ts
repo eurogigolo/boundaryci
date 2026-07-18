@@ -1,5 +1,13 @@
 export type Plan = "trial" | "team" | "growth" | "enterprise";
-export type SubscriptionStatus = "trialing" | "active" | "past_due" | "canceled";
+export type SubscriptionStatus =
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled"
+  | "incomplete"
+  | "incomplete_expired"
+  | "unpaid"
+  | "paused";
 export type Severity = "critical" | "high" | "medium" | "low" | "info";
 
 export interface Organization {
@@ -9,7 +17,10 @@ export interface Organization {
   plan: Plan;
   subscription_status: SubscriptionStatus;
   monthly_scan_limit: number;
+  billing_interval: "month" | "year" | null;
+  current_period_start: string | null;
   current_period_end: string | null;
+  cancel_at_period_end: boolean;
 }
 
 export interface Repository {

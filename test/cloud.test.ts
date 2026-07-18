@@ -88,7 +88,7 @@ describe("BoundaryCI Cloud client", () => {
       return new Response(
         JSON.stringify({
           scanId: "9f6e28af-c516-41f9-bf37-e0e5a9dc93b1",
-          dashboardUrl: "https://app.boundaryci.com/scans/9f6e28af-c516-41f9-bf37-e0e5a9dc93b1",
+          dashboardUrl: "https://boundaryci.com/scans/9f6e28af-c516-41f9-bf37-e0e5a9dc93b1",
         }),
         { status: 202, headers: { "Content-Type": "application/json" } },
       );
@@ -103,7 +103,7 @@ describe("BoundaryCI Cloud client", () => {
 
     expect(result).toEqual({
       scanId: "9f6e28af-c516-41f9-bf37-e0e5a9dc93b1",
-      dashboardUrl: "https://app.boundaryci.com/scans/9f6e28af-c516-41f9-bf37-e0e5a9dc93b1",
+      dashboardUrl: "https://boundaryci.com/scans/9f6e28af-c516-41f9-bf37-e0e5a9dc93b1",
     });
     expect(fetchMock).toHaveBeenCalledOnce();
   });

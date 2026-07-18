@@ -39,7 +39,7 @@ export function TokenReveal({
         <pre><code>{workflow}</code></pre>
       </div>
       <div className="alert alert-warning">
-        BoundaryCI Cloud is in private beta. Begin with a non-production repository and review
+        BoundaryCI Cloud is in public beta. Begin with a non-production repository and review
         uploaded finding content before wider rollout.
       </div>
       <button className="button button-primary" type="button" onClick={onDone}>

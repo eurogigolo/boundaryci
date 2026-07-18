@@ -1,0 +1,29 @@
+# BoundaryCI
+
+> BoundaryCI is a local-first tenant-isolation security scanner and paid Cloud history service for SaaS teams using Supabase and PostgreSQL.
+
+BoundaryCI detects authorization mistakes that can expose one SaaS customer's data to another customer. The open-source CLI reconstructs the final security state from ordered SQL migrations and applies deterministic checks for missing row-level security, unscoped authenticated policies, public access, and unsafe security-definer functions. An optional Fireworks AI review can identify subtler policy interactions.
+
+The scanner runs locally or inside GitHub Actions without database credentials. BoundaryCI Cloud is opt-in and receives minimized, secret-redacted finding results rather than full migration files. Cloud provides repository-bound ingestion, scan history, finding evidence, subscription-aware usage, and team-wide visibility.
+
+## Start here
+
+- Public product page: https://boundaryci.com/
+- Documentation and source: https://github.com/sir-gig/boundaryci
+- npm package: https://www.npmjs.com/package/boundaryci
+- GitHub Marketplace Action: https://github.com/marketplace/actions/boundaryci-tenant-isolation-scan
+- Security policy: https://github.com/sir-gig/boundaryci/blob/main/SECURITY.md
+- Privacy notice: https://github.com/sir-gig/boundaryci/blob/main/PRIVACY.md
+- Terms: https://github.com/sir-gig/boundaryci/blob/main/EULA.md
+
+## Verified product scope
+
+- Six deterministic Supabase/PostgreSQL security rules
+- Stable finding fingerprints, baselines, and expiring waivers
+- Terminal, JSON, SARIF, and GitHub annotation output
+- Optional schema-constrained Fireworks AI review
+- Free plan: 100 Cloud scans per month
+- Team: $49/month or $490/year for 1,000 Cloud scans per month
+- Growth: $149/month or $1,490/year for 10,000 Cloud scans per month
+
+BoundaryCI is a focused continuous security control. It does not claim to replace a penetration test, threat modeling, or an independent security assessment.

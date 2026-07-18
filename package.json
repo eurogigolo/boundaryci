@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/sir-gig/boundaryci.git"
   },
-  "homepage": "https://github.com/sir-gig/boundaryci#readme",
+  "homepage": "https://boundaryci.com/",
   "bugs": {
     "url": "https://github.com/sir-gig/boundaryci/issues"
   },
@@ -39,7 +39,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --dir test",
     "test:watch": "vitest",
     "dev": "tsx src/cli.ts",
     "scan:example": "tsx src/cli.ts scan examples/vulnerable-supabase --fail-on none",
