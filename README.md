@@ -199,6 +199,9 @@ Cloud upload is disabled by default. The payload contains repository identity, c
 
 The deployable Supabase schema and ingestion Edge Function live in [`cloud/supabase`](cloud/supabase). The control plane binds every ingestion token to one repository, stores only SHA-256 token hashes, makes retries idempotent, enforces subscription status and monthly scan limits, and applies row-level security to every tenant-owned table. See [`cloud/README.md`](cloud/README.md) for its security model and deployment path.
 
+Before accepting real customers, complete the [production launch checklist](PRODUCTION.md) for
+custom SMTP, password recovery, Stripe live mode, and the first live-payment smoke test.
+
 ## Product architecture
 
 ```text

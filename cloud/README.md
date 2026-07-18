@@ -108,6 +108,15 @@ Copy that destination's signing secret into `STRIPE_WEBHOOK_SECRET` and upload t
 
 Do not reuse PursuitPilot/day_duh price IDs. A Stripe account can be shared, but each product's prices and webhook metadata must remain distinct. The webhook safely ignores subscriptions whose price IDs are not in the BoundaryCI secret mapping.
 
+To promote the verified sandbox integration to live payments, follow the root
+[`PRODUCTION.md`](../PRODUCTION.md) checklist. The live validation command is intentionally
+separate and rejects test keys or test prices:
+
+```powershell
+cd cloud/supabase
+npx.cmd --yes deno run --allow-env --allow-net --env-file=.env.billing.live.local scripts/configure-stripe.ts --live
+```
+
 ## Run the dashboard locally
 
 Use the project's public publishable key, never its secret or service-role key:
