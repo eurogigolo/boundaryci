@@ -21,6 +21,10 @@ interface RevealedToken {
   token: string;
 }
 
+interface RefreshOptions {
+  background?: boolean;
+}
+
 type DashboardView = "overview" | "history" | "billing";
 
 export function Dashboard({ session }: { session: Session }) {
@@ -43,9 +47,14 @@ export function Dashboard({ session }: { session: Session }) {
     billingResult ? "billing" : "overview",
   );
 
-  const loadOrganizations = useCallback(async (preferredId?: string) => {
-    setLoadingOrganizations(true);
-    setError(null);
+  const loadOrganizations = useCallback(async (
+    preferredId?: string,
+    options: RefreshOptions = {},
+  ) => {
+    if (!options.background) {
+      setLoadingOrganizations(true);
+      setError(null);
+    }
     const { data, error: queryError } = await requireSupabase()
       .from("organizations")
       .select(
@@ -54,7 +63,7 @@ export function Dashboard({ session }: { session: Session }) {
       .order("created_at", { ascending: true });
     if (queryError) {
       setError(queryError.message);
-      setLoadingOrganizations(false);
+      if (!options.background) setLoadingOrganizations(false);
       return;
     }
     const next = (data ?? []) as Organization[];
@@ -65,12 +74,17 @@ export function Dashboard({ session }: { session: Session }) {
         ? candidate
         : next[0]?.id ?? null;
     });
-    setLoadingOrganizations(false);
+    if (!options.background) setLoadingOrganizations(false);
   }, []);
 
-  const loadWorkspace = useCallback(async (organizationId: string) => {
-    setLoadingWorkspace(true);
-    setError(null);
+  const loadWorkspace = useCallback(async (
+    organizationId: string,
+    options: RefreshOptions = {},
+  ) => {
+    if (!options.background) {
+      setLoadingWorkspace(true);
+      setError(null);
+    }
     const monthStart = new Date();
     monthStart.setUTCDate(1);
     monthStart.setUTCHours(0, 0, 0, 0);
@@ -122,7 +136,7 @@ export function Dashboard({ session }: { session: Session }) {
       setOpenFindings(findingResult.count ?? 0);
       setOrganizationRole(membershipResult.data?.role ?? null);
     }
-    setLoadingWorkspace(false);
+    if (!options.background) setLoadingWorkspace(false);
   }, [session.user.id]);
 
   useEffect(() => {
@@ -151,8 +165,8 @@ export function Dashboard({ session }: { session: Session }) {
     let attempts = 0;
     const timer = window.setInterval(() => {
       attempts += 1;
-      void loadOrganizations(selectedOrganizationId);
-      void loadWorkspace(selectedOrganizationId);
+      void loadOrganizations(selectedOrganizationId, { background: true });
+      void loadWorkspace(selectedOrganizationId, { background: true });
       if (attempts >= 5) window.clearInterval(timer);
     }, 2000);
     return () => window.clearInterval(timer);
@@ -277,8 +291,8 @@ export function Dashboard({ session }: { session: Session }) {
             canManage={organizationRole === "owner" || organizationRole === "admin"}
             result={billingResult}
             onRefresh={() => {
-              void loadOrganizations(selectedOrganization.id);
-              void loadWorkspace(selectedOrganization.id);
+              void loadOrganizations(selectedOrganization.id, { background: true });
+              void loadWorkspace(selectedOrganization.id, { background: true });
             }}
           />
         ) : selectedScan ? (
