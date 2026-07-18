@@ -39,7 +39,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run test",
+    "test": "vitest run --dir test",
     "test:watch": "vitest",
     "dev": "tsx src/cli.ts",
     "scan:example": "tsx src/cli.ts scan examples/vulnerable-supabase --fail-on none",
