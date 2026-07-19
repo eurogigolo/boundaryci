@@ -26,6 +26,8 @@ Repository-bound ingestion tokens are used to authenticate uploads. BoundaryCI C
 
 BoundaryCI Cloud uses Supabase Auth to process account identifiers such as your email address and authentication records. Organization membership, repository configuration, plan, usage, and subscription status are stored to provide the Cloud service.
 
+When bot protection is enabled, the authentication forms use Cloudflare Turnstile. Cloudflare processes the browser and request information needed to present and verify the security challenge under [Cloudflare's privacy policy](https://www.cloudflare.com/privacypolicy/). The public Turnstile site key is browser-visible; its secret verification key is configured only in Supabase.
+
 Stripe processes paid subscriptions, payment methods, invoices, tax identifiers, and billing addresses under Stripe's own privacy terms. BoundaryCI stores Stripe customer, subscription, and price identifiers plus subscription status and billing-period dates. The Developer does not receive or store your full payment-card number. Stripe sends signed webhook events to BoundaryCI so access and scan allowances remain synchronized with payment status.
 
 ## GitHub and npm

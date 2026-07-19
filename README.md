@@ -11,7 +11,7 @@ Catch cross-tenant authorization mistakes before a SaaS migration reaches produc
 
 BoundaryCI is a local-first CLI for Supabase and PostgreSQL projects. It reconstructs the final security state from SQL migrations, applies deterministic tenant-isolation rules, and can optionally ask a Fireworks model to review policy interactions that static rules cannot reliably understand.
 
-> **Current scope:** v0.1 is a migration scanner, not a penetration-testing guarantee. It does not connect to a live database or create synthetic tenants yet. The active two-tenant attack runner is the next product milestone.
+> **Current scope:** v0.2 is a migration scanner with optional Cloud history, not a penetration-testing guarantee. It does not connect to a live database or create synthetic tenants yet. The active two-tenant attack runner is the next product milestone.
 
 ## Quick start
 

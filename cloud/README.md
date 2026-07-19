@@ -46,7 +46,7 @@ JWT verification is disabled only at the Edge gateway because uploads use a repo
 
 ## Onboard an organization
 
-The future dashboard should perform these calls with the signed-in user's Supabase JWT:
+The dashboard performs these calls with the signed-in user's Supabase JWT:
 
 1. Call `create_organization(name, slug)`. It creates the organization and its first owner atomically.
 2. Insert a `repositories` row for a GitHub `owner/repository`. Row-level security requires an owner or administrator.

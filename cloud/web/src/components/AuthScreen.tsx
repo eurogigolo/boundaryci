@@ -1,16 +1,20 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { captchaTokenOptions, turnstileSiteKey } from "../lib/captcha";
 import { errorMessage } from "../lib/errors";
 import { requireSupabase } from "../lib/supabase";
 import { Brand } from "./Brand";
+import { TurnstileWidget, type TurnstileWidgetHandle } from "./TurnstileWidget";
 
 type AuthMode = "signin" | "signup";
 
 export function AuthScreen({
   initialMode = "signin",
   publicUrl,
+  captchaSiteKey = turnstileSiteKey,
 }: {
   initialMode?: AuthMode;
   publicUrl: string;
+  captchaSiteKey?: string;
 }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -18,7 +22,17 @@ export function AuthScreen({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaError, setCaptchaError] = useState<string | null>(null);
+  const captchaRef = useRef<TurnstileWidgetHandle>(null);
+  const captchaEnabled = Boolean(captchaSiteKey);
   const authRedirectUrl = new URL(import.meta.env.BASE_URL, window.location.origin).toString();
+
+  function resetCaptcha() {
+    if (!captchaEnabled) return;
+    setCaptchaToken(null);
+    captchaRef.current?.reset();
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -27,11 +41,12 @@ export function AuthScreen({
     setNotice(null);
     try {
       const client = requireSupabase();
+      const captchaOptions = captchaTokenOptions(captchaSiteKey, captchaToken);
       if (mode === "signup") {
         const { data, error: authError } = await client.auth.signUp({
           email: email.trim(),
           password,
-          options: { emailRedirectTo: authRedirectUrl },
+          options: { emailRedirectTo: authRedirectUrl, ...captchaOptions },
         });
         if (authError) throw authError;
         if (!data.session) {
@@ -41,12 +56,14 @@ export function AuthScreen({
         const { error: authError } = await client.auth.signInWithPassword({
           email: email.trim(),
           password,
+          options: captchaOptions,
         });
         if (authError) throw authError;
       }
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
+      resetCaptcha();
       setBusy(false);
     }
   }
@@ -59,14 +76,17 @@ export function AuthScreen({
     setBusy(true);
     setError(null);
     try {
+      const captchaOptions = captchaTokenOptions(captchaSiteKey, captchaToken);
       const { error: resetError } = await requireSupabase().auth.resetPasswordForEmail(email.trim(), {
         redirectTo: authRedirectUrl,
+        ...captchaOptions,
       });
       if (resetError) throw resetError;
       setNotice("Password reset instructions are on the way.");
     } catch (caught) {
       setError(errorMessage(caught));
     } finally {
+      resetCaptcha();
       setBusy(false);
     }
   }
@@ -75,6 +95,8 @@ export function AuthScreen({
     setMode(next);
     setError(null);
     setNotice(null);
+    setCaptchaError(null);
+    resetCaptcha();
   }
 
   return (
@@ -150,15 +172,33 @@ export function AuthScreen({
                 required
               />
             </label>
+            {captchaEnabled && (
+              <TurnstileWidget
+                ref={captchaRef}
+                siteKey={captchaSiteKey}
+                onToken={setCaptchaToken}
+                onError={setCaptchaError}
+              />
+            )}
+            {captchaError && <div className="alert alert-error" role="alert">{captchaError}</div>}
             {error && <div className="alert alert-error" role="alert">{error}</div>}
             {notice && <div className="alert alert-success" role="status">{notice}</div>}
-            <button className="button button-primary button-full" type="submit" disabled={busy}>
+            <button
+              className="button button-primary button-full"
+              type="submit"
+              disabled={busy || (captchaEnabled && !captchaToken)}
+            >
               {busy ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
             </button>
           </form>
 
           {mode === "signin" && (
-            <button className="text-button" type="button" disabled={busy} onClick={() => void resetPassword()}>
+            <button
+              className="text-button"
+              type="button"
+              disabled={busy || (captchaEnabled && !captchaToken)}
+              onClick={() => void resetPassword()}
+            >
               Forgot your password?
             </button>
           )}

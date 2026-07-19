@@ -47,6 +47,7 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.BOUNDARYCI_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.BOUNDARYCI_SUPABASE_PUBLISHABLE_KEY }}
           VITE_BOUNDARYCI_INGEST_URL: ${{ vars.BOUNDARYCI_INGEST_URL }}
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.BOUNDARYCI_TURNSTILE_SITE_KEY }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: cloud/web/dist

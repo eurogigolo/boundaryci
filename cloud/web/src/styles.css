@@ -103,6 +103,8 @@ input:focus, select:focus { border-color: #6855ce; box-shadow: 0 0 0 3px rgba(13
 .auth-tabs button.active { color: #fff; background: #1c2130; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
 .auth-card form { display: grid; gap: 17px; }
 .auth-card form .button { margin-top: 4px; }
+.turnstile-widget { width: 100%; min-height: 65px; display: grid; align-items: center; overflow: hidden; }
+.turnstile-widget > div { width: 100% !important; }
 .recovery-form { margin-top: 28px; }
 .auth-card > .text-button { display: block; margin: 18px auto 0; }
 .legal-copy { margin: 28px auto 0; max-width: 340px; color: #62697b; font-size: 11px; line-height: 1.6; text-align: center; }

@@ -46,6 +46,28 @@ Use an address that is not a member of the Supabase project team:
 4. Confirm SPF and DKIM pass in the received message headers and that the message does not land in
    spam.
 
+### Bot and abuse protection
+
+BoundaryCI supports Cloudflare Turnstile on sign-up, sign-in, and password-reset requests. The
+frontend remains unchanged when no site key is configured, so activate the browser and Supabase
+settings together in this order:
+
+1. Create a Turnstile widget for `boundaryci.com`. Keep the secret key in Cloudflare and Supabase;
+   it must never be placed in Vite, GitHub Pages, or the repository.
+2. Add the public site key as the GitHub Actions repository variable
+   `BOUNDARYCI_TURNSTILE_SITE_KEY`.
+3. Re-run the **Deploy Cloud dashboard** workflow and verify that the security check loads on the
+   sign-in and sign-up screens. The build maps that repository variable to the browser-safe
+   `VITE_TURNSTILE_SITE_KEY` value.
+4. In Supabase, open **Authentication → Bot and Abuse Protection**, select Cloudflare Turnstile,
+   enter the Turnstile secret key, enable CAPTCHA protection, and save.
+5. Immediately test account creation, password sign-in, and password-reset email requests from a
+   private browser window. Each request must consume a fresh challenge token.
+
+For local browser testing, use Cloudflare's published test site key rather than allowing localhost
+on the production widget. Do not enable Supabase CAPTCHA before the deployed frontend is visibly
+producing tokens, because protected authentication requests would otherwise fail.
+
 ## 2. Stripe account activation
 
 Before creating live objects, finish Stripe's business verification and confirm that live charges
