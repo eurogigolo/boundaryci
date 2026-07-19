@@ -45,6 +45,8 @@ export function PublicDocumentPage({
 }) {
   const category = categoryLabel(page);
   const categoryUrl = categoryHref(page);
+  const currentBreadcrumbLabel = page.ruleId
+    ?? (page.kind === "rule-index" || page.kind === "security" ? category : page.eyebrow);
   const ctaHref = page.kind === "security"
     ? GITHUB_URL
     : publicHref(baseUrl, "?auth=signup");
@@ -59,7 +61,7 @@ export function PublicDocumentPage({
         {categoryUrl && categoryUrl !== page.path
           ? <><a href={publicHref(baseUrl, categoryUrl)}>{category}</a><span aria-hidden="true">/</span></>
           : null}
-        <span>{page.ruleId ?? category}</span>
+        <span>{currentBreadcrumbLabel}</span>
       </div>
 
       <article className="document-article">

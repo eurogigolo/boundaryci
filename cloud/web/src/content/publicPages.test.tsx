@@ -52,6 +52,12 @@ describe("public discovery pages", () => {
     }
   });
 
+  it("labels guide breadcrumbs with the current article", () => {
+    const markup = renderPublicRoute("/guides/test-supabase-rls/", "/");
+    expect(markup).toContain("<span>Supabase RLS testing</span>");
+    expect(markup).not.toContain("<span>Guides</span>");
+  });
+
   it("keeps the sitemap and llms catalog aligned with the route source", () => {
     const sitemap = readFileSync(new URL("../../public/sitemap.xml", import.meta.url), "utf8");
     const llms = readFileSync(new URL("../../public/llms.txt", import.meta.url), "utf8");
