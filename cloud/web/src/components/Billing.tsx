@@ -183,9 +183,9 @@ export function Billing({ organization, monthlyUsage, canManage, result, onRefre
             <article className={`pricing-card ${plan.featured ? "featured" : ""}`} key={plan.key}>
               {plan.featured && <span className="pricing-badge">Built for SaaS teams</span>}
               <span className="eyebrow">{plan.name}</span>
-              <h2>{price === 0 ? "$0" : `$${price}`}<small>/month</small></h2>
+              <h2>{price === 0 ? "$0" : `$${price}`}<small> USD/month</small></h2>
               {interval === "annual" && price > 0 && (
-                <p className="annual-total">${plan.monthlyPrice * 10}/year, billed annually</p>
+                <p className="annual-total">${plan.monthlyPrice * 10} USD/year, billed annually</p>
               )}
               <p>{plan.description}</p>
               <ul>
@@ -215,6 +215,10 @@ export function Billing({ organization, monthlyUsage, canManage, result, onRefre
           );
         })}
       </section>
+
+      <p className="billing-terms">
+        Paid subscriptions renew automatically until canceled. Cancellation normally takes effect at the end of the current paid period. Charges are non-refundable except where required by law or agreed in writing. Stripe processes card details. Review the <a href="/terms/" target="_blank" rel="noreferrer">subscription terms</a> and <a href="/privacy/" target="_blank" rel="noreferrer">privacy notice</a> before purchase.
+      </p>
 
       <section className="enterprise-callout">
         <div>

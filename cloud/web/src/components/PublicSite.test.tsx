@@ -14,8 +14,12 @@ describe("BoundaryCI public launch site", () => {
   it("publishes the current pricing without changing product limits", () => {
     expect(markup).toContain("$49");
     expect(markup).toContain("$149");
+    expect(markup).toContain("USD / month");
     expect(markup).toContain("1,000 Cloud scans per month");
     expect(markup).toContain("10,000 Cloud scans per month");
+    expect(markup).toContain("Paid subscriptions renew automatically until canceled");
+    expect(markup).toContain('href="/terms/"');
+    expect(markup).toContain('href="/privacy/"');
   });
 
   it("routes public conversion actions into the Cloud signup", () => {

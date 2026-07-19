@@ -213,10 +213,8 @@ const configurationParameters: Stripe.BillingPortal.ConfigurationCreateParams =
     default_return_url: `${appUrl}/?billing=portal`,
     business_profile: {
       headline: "Manage your BoundaryCI plan, payment method, and invoices.",
-      privacy_policy_url:
-        "https://github.com/sir-gig/boundaryci/blob/main/PRIVACY.md",
-      terms_of_service_url:
-        "https://github.com/sir-gig/boundaryci/blob/main/EULA.md",
+      privacy_policy_url: `${appUrl}/privacy/`,
+      terms_of_service_url: `${appUrl}/terms/`,
     },
     features: {
       customer_update: {

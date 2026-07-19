@@ -201,8 +201,10 @@ Cloud upload is disabled by default. The payload contains repository identity, c
 
 The deployable Supabase schema and ingestion Edge Function live in [`cloud/supabase`](cloud/supabase). The control plane binds every ingestion token to one repository, stores only SHA-256 token hashes, makes retries idempotent, enforces subscription status and monthly scan limits, and applies row-level security to every tenant-owned table. See [`cloud/README.md`](cloud/README.md) for its security model and deployment path.
 
-Before accepting real customers, complete the [production launch checklist](PRODUCTION.md) for
-custom SMTP, password recovery, Stripe live mode, and the first live-payment smoke test.
+BoundaryCI Cloud now uses custom SMTP, branded authentication, Turnstile abuse protection,
+and validated Stripe live checkout and webhook configuration. Before accepting real customers,
+complete the remaining [production launch checklist](PRODUCTION.md), including the intentionally
+deferred live-payment and refund smoke test.
 
 ## Product architecture
 
@@ -241,6 +243,7 @@ Fireworks integration uses its OpenAI-compatible chat-completions API and [struc
 - Use of BoundaryCI is governed by the [End User License Agreement](EULA.md).
 - BoundaryCI's data handling is described in the [Privacy Notice](PRIVACY.md).
 - Bug reports, AI-output feedback, and security-reporting routes are documented in [Support](SUPPORT.md).
+- First-party customer copies are published at [boundaryci.com/terms](https://boundaryci.com/terms/), [boundaryci.com/privacy](https://boundaryci.com/privacy/), and [boundaryci.com/support](https://boundaryci.com/support/).
 
 ## License
 

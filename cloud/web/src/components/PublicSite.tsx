@@ -201,7 +201,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
         <div className="launch-section-heading launch-heading-centered">
           <span className="eyebrow">Simple pricing</span>
           <h2>Start free. Pay when BoundaryCI becomes part of how your team ships.</h2>
-          <p>Annual plans include two months free. Cancel or change plans through Stripe at any time.</p>
+          <p>Annual plans include two months free. Manage plan changes and schedule cancellation through Stripe.</p>
         </div>
         <div className="launch-pricing-grid">
           {BILLING_PLANS.map((plan) => (
@@ -210,10 +210,10 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
               <span className="eyebrow">{plan.name}</span>
               <p>{plan.description}</p>
               <div className="launch-price">
-                <strong>${plan.monthlyPrice}</strong><span>/ month</span>
+                <strong>${plan.monthlyPrice}</strong><span>USD / month</span>
               </div>
               {plan.monthlyPrice > 0
-                ? <small>${plan.monthlyPrice * 10}/year when billed annually</small>
+                ? <small>${plan.monthlyPrice * 10} USD/year when billed annually</small>
                 : <small>No card required</small>}
               <ul>
                 {plan.features.map((feature) => <li key={feature}><i>✓</i>{feature}</li>)}
@@ -227,6 +227,9 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
             </article>
           ))}
         </div>
+        <p className="launch-pricing-terms">
+          Paid subscriptions renew automatically until canceled. Cancellation normally takes effect at the end of the paid period. Charges are non-refundable except where required by law or agreed in writing. Stripe processes card information; BoundaryCI does not store complete card numbers. Review the <a href={publicHref(baseUrl, "/terms/")}>subscription terms</a> and <a href={publicHref(baseUrl, "/privacy/")}>privacy notice</a> before purchase.
+        </p>
         <div className="launch-enterprise">
           <div><span className="eyebrow">Enterprise</span><h3>Need private runners, custom controls, or procurement support?</h3></div>
           <a className="button button-secondary" href={`${GITHUB_URL}/issues/new?title=BoundaryCI%20Enterprise`}>Talk to us</a>
