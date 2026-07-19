@@ -1,37 +1,19 @@
 import { BILLING_PLANS } from "../lib/billing";
-import { Brand } from "./Brand";
-
-const GITHUB_URL = "https://github.com/sir-gig/boundaryci";
-const NPM_URL = "https://www.npmjs.com/package/boundaryci";
-const MARKETPLACE_URL =
-  "https://github.com/marketplace/actions/boundaryci-tenant-isolation-scan";
-
-function publicHref(baseUrl: string, suffix: string): string {
-  return `${baseUrl}${suffix}`;
-}
+import {
+  GITHUB_URL,
+  MARKETPLACE_URL,
+  NPM_URL,
+  PublicFooter,
+  PublicNavigation,
+  publicHref,
+} from "./PublicNavigation";
 
 export function PublicSite({ baseUrl }: { baseUrl: string }) {
-  const signInUrl = publicHref(baseUrl, "?auth=signin");
   const signUpUrl = publicHref(baseUrl, "?auth=signup");
 
   return (
     <main className="launch-site">
-      <nav className="launch-nav" aria-label="Main navigation">
-        <a className="launch-brand-link" href={baseUrl} aria-label="BoundaryCI home">
-          <Brand />
-        </a>
-        <div className="launch-nav-links">
-          <a href="#product">Product</a>
-          <a href="#security">Security</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#faq">FAQ</a>
-          <a href={GITHUB_URL}>Docs</a>
-        </div>
-        <div className="launch-nav-actions">
-          <a className="launch-sign-in" href={signInUrl}>Sign in</a>
-          <a className="button button-primary button-small" href={signUpUrl}>Start free</a>
-        </div>
-      </nav>
+      <PublicNavigation baseUrl={baseUrl} />
 
       <section className="launch-hero">
         <div className="launch-hero-glow" aria-hidden="true" />
@@ -196,7 +178,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
             <li><i>✓</i><span><b>Repository-bound tokens</b>Upload credentials cannot cross repository boundaries.</span></li>
             <li><i>✓</i><span><b>Fireworks is optional</b>AI review is separate, explicit, and schema-constrained.</span></li>
           </ul>
-          <a className="launch-text-link" href={`${GITHUB_URL}#product-architecture`}>Read the security model →</a>
+          <a className="launch-text-link" href={publicHref(baseUrl, "/security/")}>Read the security model →</a>
         </div>
         <div className="boundary-diagram" aria-label="Local-first BoundaryCI data flow">
           <div className="boundary-zone customer-zone">
@@ -291,21 +273,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
         </div>
       </section>
 
-      <footer className="launch-footer">
-        <div>
-          <Brand />
-          <p>Continuous tenant-isolation assurance for Supabase and PostgreSQL SaaS.</p>
-        </div>
-        <div className="launch-footer-links">
-          <section><b>Product</b><a href="#product">How it works</a><a href="#pricing">Pricing</a><a href={MARKETPLACE_URL}>GitHub Action</a></section>
-          <section><b>Resources</b><a href={GITHUB_URL}>Documentation</a><a href={NPM_URL}>npm package</a><a href={`${GITHUB_URL}/blob/main/SECURITY.md`}>Security</a></section>
-          <section><b>Company</b><a href={`${GITHUB_URL}/blob/main/SUPPORT.md`}>Support</a><a href={`${GITHUB_URL}/blob/main/EULA.md`}>Terms</a><a href={`${GITHUB_URL}/blob/main/PRIVACY.md`}>Privacy</a></section>
-        </div>
-        <div className="launch-footer-bottom">
-          <span>© 2026 BoundaryCI. Open-source scanner, paid Cloud assurance.</span>
-          <span className="launch-status"><i /> Open-source scanner available</span>
-        </div>
-      </footer>
+      <PublicFooter baseUrl={baseUrl} />
     </main>
   );
 }

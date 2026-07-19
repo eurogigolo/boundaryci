@@ -9,12 +9,32 @@ The scanner runs locally or inside GitHub Actions without database credentials. 
 ## Start here
 
 - Public product page: https://boundaryci.com/
+- Supabase RLS scanner: https://boundaryci.com/supabase-rls-scanner/
+- BoundaryCI quickstart: https://boundaryci.com/docs/quickstart/
+- GitHub Action setup: https://boundaryci.com/github-action/
+- Security and data handling: https://boundaryci.com/security/
 - Documentation and source: https://github.com/sir-gig/boundaryci
 - npm package: https://www.npmjs.com/package/boundaryci
 - GitHub Marketplace Action: https://github.com/marketplace/actions/boundaryci-tenant-isolation-scan
 - Security policy: https://github.com/sir-gig/boundaryci/blob/main/SECURITY.md
 - Privacy notice: https://github.com/sir-gig/boundaryci/blob/main/PRIVACY.md
 - Terms: https://github.com/sir-gig/boundaryci/blob/main/EULA.md
+
+## Technical guides
+
+- Tenant-isolation testing for multi-tenant SaaS: https://boundaryci.com/guides/tenant-isolation-testing/
+- How to test Supabase row-level security: https://boundaryci.com/guides/test-supabase-rls/
+- PostgreSQL multi-tenant security: https://boundaryci.com/guides/postgresql-multi-tenant-security/
+
+## Deterministic rule reference
+
+- Rule index: https://boundaryci.com/rules/
+- BND001, exposed table without RLS: https://boundaryci.com/rules/bnd001/
+- BND002, RLS table without policies: https://boundaryci.com/rules/bnd002/
+- BND003, unrestricted public policy: https://boundaryci.com/rules/bnd003/
+- BND004, authenticated policy not tenant-scoped: https://boundaryci.com/rules/bnd004/
+- BND005, SECURITY DEFINER search path: https://boundaryci.com/rules/bnd005/
+- BND006, SECURITY DEFINER executable by PUBLIC: https://boundaryci.com/rules/bnd006/
 
 ## Verified product scope
 

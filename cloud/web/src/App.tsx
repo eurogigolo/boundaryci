@@ -4,7 +4,8 @@ import { AuthScreen } from "./components/AuthScreen";
 import { Brand } from "./components/Brand";
 import { Dashboard } from "./components/Dashboard";
 import { PasswordRecovery } from "./components/PasswordRecovery";
-import { PublicSite } from "./components/PublicSite";
+import { PublicRoute } from "./components/PublicRoute";
+import { getPublicPage } from "./content/publicPages";
 import { cloudConfigurationError, supabase } from "./lib/supabase";
 
 function isPasswordRecoveryUrl(): boolean {
@@ -18,6 +19,7 @@ export function App() {
   const [loading, setLoading] = useState(Boolean(supabase));
   const [recoveringPassword, setRecoveringPassword] = useState(isPasswordRecoveryUrl);
   const publicUrl = import.meta.env.BASE_URL;
+  const publicPath = window.location.pathname;
   const requestedAuthMode = new URLSearchParams(window.location.search).get("auth");
   const authMode = requestedAuthMode === "signup" || requestedAuthMode === "signin"
     ? requestedAuthMode
@@ -43,11 +45,15 @@ export function App() {
     };
   }, []);
 
-  if (loading) {
-    return <PublicSite baseUrl={publicUrl} />;
+  if (getPublicPage(publicPath)) {
+    return <PublicRoute baseUrl={publicUrl} pathname={publicPath} />;
   }
 
-  if (!session && !authMode) return <PublicSite baseUrl={publicUrl} />;
+  if (loading) {
+    return <PublicRoute baseUrl={publicUrl} pathname={publicPath} />;
+  }
+
+  if (!session && !authMode) return <PublicRoute baseUrl={publicUrl} pathname={publicPath} />;
 
   if (cloudConfigurationError) {
     return (
@@ -68,5 +74,5 @@ export function App() {
   }
   if (session) return <Dashboard session={session} />;
   if (authMode) return <AuthScreen initialMode={authMode} publicUrl={publicUrl} />;
-  return <PublicSite baseUrl={publicUrl} />;
+  return <PublicRoute baseUrl={publicUrl} pathname={publicPath} />;
 }

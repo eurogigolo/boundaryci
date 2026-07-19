@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://boundaryci.com/</loc>
-    <lastmod>2026-07-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <url><loc>https://boundaryci.com/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/supabase-rls-scanner/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/guides/tenant-isolation-testing/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/guides/test-supabase-rls/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/guides/postgresql-multi-tenant-security/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/github-action/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/docs/quickstart/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/rules/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/rules/bnd001/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/rules/bnd002/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/rules/bnd003/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/rules/bnd004/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/rules/bnd005/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/rules/bnd006/</loc><lastmod>2026-07-18</lastmod></url>
+  <url><loc>https://boundaryci.com/security/</loc><lastmod>2026-07-18</lastmod></url>
 </urlset>
