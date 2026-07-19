@@ -14,7 +14,7 @@ import { structuredDataForRoute } from "../lib/seo";
 
 describe("public discovery pages", () => {
   it("defines a unique, descriptive route for every indexable page", () => {
-    expect(PUBLIC_ROUTES).toHaveLength(15);
+    expect(PUBLIC_ROUTES).toHaveLength(18);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.path)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.title)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.description)).size).toBe(PUBLIC_ROUTES.length);
@@ -88,6 +88,16 @@ describe("public discovery pages", () => {
 
   it("makes every document route resolvable from the typed content catalog", () => {
     for (const page of PUBLIC_PAGES) expect(getPublicPage(page.path)).toEqual(page);
+  });
+
+  it("publishes first-party billing policies without a conversion prompt", () => {
+    const terms = renderPublicRoute("/terms/", "/");
+    expect(terms).toContain("Prices, currency, and automatic renewal");
+    expect(terms).toContain("Cancellation and refunds");
+    expect(terms).not.toContain("Make tenant isolation a release gate");
+
+    expect(renderPublicRoute("/privacy/", "/")).toContain("Optional Cloud upload");
+    expect(renderPublicRoute("/support/", "/")).toContain("Billing and subscription help");
   });
 });
 

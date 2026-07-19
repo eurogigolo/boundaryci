@@ -72,9 +72,9 @@ export function PublicFooter({ baseUrl }: { baseUrl: string }) {
         <section>
           <b>Company</b>
           <a href={publicHref(baseUrl, "/security/")}>Security</a>
-          <a href={`${GITHUB_URL}/blob/main/SUPPORT.md`}>Support</a>
-          <a href={`${GITHUB_URL}/blob/main/EULA.md`}>Terms</a>
-          <a href={`${GITHUB_URL}/blob/main/PRIVACY.md`}>Privacy</a>
+          <a href={publicHref(baseUrl, "/support/")}>Support</a>
+          <a href={publicHref(baseUrl, "/terms/")}>Terms</a>
+          <a href={publicHref(baseUrl, "/privacy/")}>Privacy</a>
         </section>
       </div>
       <div className="launch-footer-bottom">

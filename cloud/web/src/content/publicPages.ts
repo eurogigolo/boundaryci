@@ -1,5 +1,6 @@
 export const SITE_ORIGIN = "https://boundaryci.com";
 export const CONTENT_DATE = "2026-07-18";
+export const BILLING_READINESS_DATE = "2026-07-19";
 
 export type PublicPageKind =
   | "product"
@@ -7,7 +8,8 @@ export type PublicPageKind =
   | "documentation"
   | "rule-index"
   | "rule"
-  | "security";
+  | "security"
+  | "legal";
 
 export interface CodeSample {
   label: string;
@@ -73,7 +75,7 @@ export const HOME_ROUTE: PublicRouteMetadata = {
     "Catch Supabase and PostgreSQL tenant-isolation mistakes before one SaaS customer can access another customer's data. Free local scanner and paid Cloud history.",
   heading: "Stop one customer from seeing another customer's data.",
   publishedAt: CONTENT_DATE,
-  modifiedAt: CONTENT_DATE,
+  modifiedAt: BILLING_READINESS_DATE,
 };
 
 export const RULE_SUMMARIES: RuleSummary[] = [
@@ -594,6 +596,197 @@ const pages: PublicPage[] = [
     ],
     related: [sharedRelated.rules, sharedRelated.quickstart, { href: "/guides/tenant-isolation-testing/", label: "Tenant-isolation testing", description: "See the broader testing model and its limits." }],
     ctaLabel: "Review the open-source scanner",
+  },
+  {
+    path: "/terms/",
+    kind: "legal",
+    title: "BoundaryCI Cloud Terms and Subscription Policy",
+    description:
+      "Review BoundaryCI Cloud subscription renewal, cancellation, refund, service-scope, payment-processing, and customer-responsibility terms.",
+    eyebrow: "Terms and subscriptions",
+    heading: "Clear terms for using BoundaryCI and BoundaryCI Cloud.",
+    introduction:
+      "These terms explain the service BoundaryCI provides, how paid Cloud subscriptions renew and end, and the limits customers should understand before purchasing.",
+    publishedAt: "2026-07-17",
+    modifiedAt: BILLING_READINESS_DATE,
+    sections: [
+      {
+        id: "license-and-scope",
+        heading: "License and service scope",
+        paragraphs: [
+          "The BoundaryCI scanner is distributed under the MIT License. BoundaryCI Cloud adds hosted scan history, organization access, usage allowances, and optional paid subscription capacity.",
+          "BoundaryCI is an engineering aid for reviewing tenant-isolation controls. It is not a penetration test, security certification, legal or compliance opinion, managed security service, or guarantee that an application is secure.",
+        ],
+      },
+      {
+        id: "subscriptions",
+        heading: "Prices, currency, and automatic renewal",
+        paragraphs: [
+          "Paid prices, billing interval, included usage, and any promotion are displayed before authorization in Stripe Checkout. Public BoundaryCI prices are stated in United States dollars unless Checkout explicitly shows otherwise.",
+          "Monthly and annual subscriptions renew automatically using the saved payment method until canceled. Future pricing changes apply only with the notice and authorization required by Stripe and applicable law.",
+        ],
+      },
+      {
+        id: "cancellation-and-refunds",
+        heading: "Cancellation and refunds",
+        paragraphs: [
+          "Customers can manage payment methods, invoices, plan changes, and cancellation through Stripe's hosted customer portal. Cancellation normally takes effect at the end of the current paid period, so access continues through that period unless Stripe indicates otherwise.",
+          "Charges are non-refundable except where required by law or expressly agreed in writing. A payment refund and a subscription cancellation are separate actions; refunding a payment does not by itself cancel future renewal.",
+        ],
+      },
+      {
+        id: "payments-and-delivery",
+        heading: "Payment processing and service delivery",
+        paragraphs: [
+          "Stripe processes payment methods, invoices, billing addresses, and tax identifiers. BoundaryCI does not receive or store complete card numbers. Card statements should identify the charge with the BoundaryCI statement descriptor configured in Stripe.",
+          "Paid capacity is delivered to the BoundaryCI Cloud organization associated with Checkout after Stripe confirms the subscription. Access or ingestion can be limited when an allowance is exhausted or a subscription is incomplete, unpaid, past due, paused, or canceled.",
+        ],
+      },
+      {
+        id: "customer-responsibilities",
+        heading: "Customer responsibilities",
+        paragraphs: [
+          "Customers must use BoundaryCI only on code and systems they are authorized to assess, protect credentials and confidential material, and review findings before making security or production decisions.",
+          "Do not submit production credentials, unnecessary personal data, or proprietary migrations through public support channels. Third-party services such as Supabase, Stripe, GitHub, npm, Cloudflare, and Fireworks operate under their own terms.",
+        ],
+      },
+      {
+        id: "support-and-changes",
+        heading: "Support, changes, and complete agreement",
+        paragraphs: [
+          "Support is provided on a reasonable-effort basis without an uptime or response-time commitment unless a separate Enterprise agreement states otherwise. Material changes are published through the BoundaryCI repository and public site.",
+          "The complete BoundaryCI End User License Agreement remains available in the public sir-gig/boundaryci GitHub repository. If this page and that agreement conflict, the complete agreement controls.",
+        ],
+      },
+    ],
+    related: [
+      { href: "/privacy/", label: "Privacy notice", description: "See how account, scan, authentication, and billing information is handled." },
+      { href: "/support/", label: "Customer support", description: "Find the right route for billing, product, and security questions." },
+      sharedRelated.security,
+    ],
+    ctaLabel: "Start scanning free",
+  },
+  {
+    path: "/privacy/",
+    kind: "legal",
+    title: "BoundaryCI Privacy Notice and Data Handling",
+    description:
+      "Learn what BoundaryCI processes during local scans, optional Cloud upload, authentication, bot protection, AI review, support, and Stripe billing.",
+    eyebrow: "Privacy notice",
+    heading: "Know what stays local and what optional services process.",
+    introduction:
+      "BoundaryCI is local-first. Network processing occurs only when a customer enables an optional integration, uses BoundaryCI Cloud, authenticates, requests support, or purchases a subscription.",
+    publishedAt: "2026-07-17",
+    modifiedAt: BILLING_READINESS_DATE,
+    sections: [
+      {
+        id: "local-scans",
+        heading: "Local deterministic scans",
+        paragraphs: [
+          "Deterministic scans run on the customer machine or GitHub Actions runner and make no BoundaryCI network request. Merely running the scanner does not send repositories, migrations, findings, credentials, or workflow metadata to the Developer.",
+          "BoundaryCI has no product analytics, behavioral advertising, or scanner telemetry. Information reaches BoundaryCI Cloud only when upload is explicitly enabled.",
+        ],
+      },
+      {
+        id: "cloud-upload",
+        heading: "Optional Cloud upload",
+        paragraphs: [
+          "Cloud upload can include repository and commit context, scan timestamps, summary counts, finding classifications, relative paths, line numbers, short evidence, remediation, disposition, and waiver metadata.",
+          "The client excludes complete migration files, database credentials, absolute scan targets, and migration inventories. Common secret patterns are redacted, but redaction cannot guarantee removal of every confidential value.",
+        ],
+      },
+      {
+        id: "accounts-and-security",
+        heading: "Accounts, authentication, and abuse protection",
+        paragraphs: [
+          "Supabase processes authentication records and hosts organization, repository, usage, finding, and subscription state. Repository ingestion tokens are stored as SHA-256 hashes rather than plaintext.",
+          "Cloudflare Turnstile processes browser and request signals needed to challenge automated authentication attempts. Its public site key is browser-visible; its verification secret remains server-side in Supabase.",
+        ],
+      },
+      {
+        id: "billing",
+        heading: "Billing",
+        paragraphs: [
+          "Stripe processes paid subscriptions, payment methods, invoices, tax identifiers, and billing addresses. BoundaryCI stores customer, subscription, price, status, event, and billing-period identifiers needed to synchronize plan access.",
+          "The Developer does not receive or store complete payment-card numbers. Stripe retains payment and invoice information under its own policies.",
+        ],
+      },
+      {
+        id: "fireworks-and-support",
+        heading: "Optional AI review and information customers submit",
+        paragraphs: [
+          "When explicitly enabled, migration text is redacted locally and sent directly to Fireworks using the customer's API key and account. The Developer does not receive that request or response.",
+          "Information voluntarily submitted through GitHub issues, pull requests, discussions, or vulnerability reports is processed to respond and maintain the product. Customers should remove credentials, personal data, and proprietary material before submission.",
+        ],
+      },
+      {
+        id: "retention-and-requests",
+        heading: "Retention, sharing, and requests",
+        paragraphs: [
+          "The Developer does not sell personal information. Information is shared only as needed to provide the selected services, respond through support channels, comply with law, or protect rights and security.",
+          "Cloud records may be deleted when an organization or repository is removed, while billing and event identifiers can be retained when reasonably needed for accounting, fraud prevention, disputes, and legal compliance. Use the support page for access, correction, export, or deletion requests without posting confidential information publicly.",
+        ],
+      },
+    ],
+    related: [
+      { href: "/terms/", label: "Terms and subscriptions", description: "Review paid-plan renewal, cancellation, refund, and service-scope terms." },
+      { href: "/support/", label: "Customer support", description: "Choose a public or private support route appropriate to the issue." },
+      sharedRelated.security,
+    ],
+    ctaLabel: "Start scanning free",
+  },
+  {
+    path: "/support/",
+    kind: "legal",
+    title: "BoundaryCI Customer Support and Security Reporting",
+    description:
+      "Get BoundaryCI product and billing help, report reproducible bugs, share AI-output feedback, or disclose a security vulnerability privately.",
+    eyebrow: "Customer support",
+    heading: "Use the support route that protects your information.",
+    introduction:
+      "BoundaryCI provides reasonable-effort support for the open-source scanner and Cloud subscriptions. Never include credentials, customer data, or proprietary migrations in a public report.",
+    publishedAt: "2026-07-17",
+    modifiedAt: BILLING_READINESS_DATE,
+    sections: [
+      {
+        id: "product-help",
+        heading: "Product help and reproducible bugs",
+        paragraphs: [
+          "Use GitHub Issues in the public sir-gig/boundaryci repository for installation problems, documentation questions, sanitized reproductions, feature requests, and feedback about an AI-generated finding.",
+          "Include the BoundaryCI version, operating system, command, sanitized output, and smallest safe reproduction. The latest tagged release is the supported open-source version.",
+        ],
+      },
+      {
+        id: "billing-help",
+        heading: "Billing and subscription help",
+        paragraphs: [
+          "Use the support contact displayed by Stripe Checkout or on the Stripe receipt for payment-specific questions. Use Manage billing inside BoundaryCI Cloud for invoices, payment methods, plan changes, and cancellation.",
+          "A refund and subscription cancellation are separate actions. Include only the organization name and invoice date in an initial request; do not send complete card details, authentication codes, or Stripe credentials.",
+        ],
+      },
+      {
+        id: "security-reporting",
+        heading: "Security vulnerabilities",
+        paragraphs: [
+          "Do not open a public issue for a suspected vulnerability. Use GitHub's private vulnerability-reporting feature for the sir-gig/boundaryci repository and follow SECURITY.md.",
+          "Include the affected version, reproduction conditions, impact, and a safe contact method. Do not include live credentials or unrelated customer information.",
+        ],
+      },
+      {
+        id: "service-level",
+        heading: "Support scope",
+        paragraphs: [
+          "Paid plans provide the capacity displayed at Checkout but do not include a guaranteed response time, uptime commitment, incident-response service, or service-level agreement unless a separate Enterprise agreement states otherwise.",
+          "Growth and Enterprise requests are prioritized when practical. Fireworks account access, availability, and billing remain the responsibility of Fireworks support.",
+        ],
+      },
+    ],
+    related: [
+      { href: "/terms/", label: "Terms and subscriptions", description: "Review service scope and paid-plan policies before purchase." },
+      { href: "/privacy/", label: "Privacy notice", description: "Understand information handling before submitting a report." },
+      sharedRelated.security,
+    ],
+    ctaLabel: "Start scanning free",
   },
 ];
 

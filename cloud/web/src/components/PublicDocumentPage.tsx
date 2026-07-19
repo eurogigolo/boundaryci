@@ -3,6 +3,7 @@ import { RULE_SUMMARIES } from "../content/publicPages";
 import { GITHUB_URL, PublicFooter, PublicNavigation, publicHref } from "./PublicNavigation";
 
 function categoryLabel(page: PublicPage): string {
+  if (page.kind === "legal") return "Company";
   if (page.kind === "guide") return "Guides";
   if (page.kind === "rule" || page.kind === "rule-index") return "Rules";
   if (page.kind === "documentation") return "Documentation";
@@ -16,6 +17,13 @@ function categoryHref(page: PublicPage): string | undefined {
   if (page.kind === "documentation") return "/docs/quickstart/";
   if (page.kind === "product") return "/supabase-rls-scanner/";
   return undefined;
+}
+
+function displayDate(value: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
 }
 
 function RuleCards({ baseUrl }: { baseUrl: string }) {
@@ -70,11 +78,21 @@ export function PublicDocumentPage({
           <h1>{page.heading}</h1>
           <p>{page.introduction}</p>
           <div className="document-byline">
-            <span>By BoundaryCI</span>
+            <span>{page.kind === "legal" ? "BoundaryCI policy" : "By BoundaryCI"}</span>
             <span aria-hidden="true">·</span>
-            <time dateTime={page.modifiedAt}>Updated July 18, 2026</time>
-            <span aria-hidden="true">·</span>
-            <span>Reviewed against BoundaryCI v0.2</span>
+            {page.kind === "legal" ? (
+              <>
+                <time dateTime={page.publishedAt}>Effective {displayDate(page.publishedAt)}</time>
+                <span aria-hidden="true">·</span>
+                <time dateTime={page.modifiedAt}>Updated {displayDate(page.modifiedAt)}</time>
+              </>
+            ) : (
+              <>
+                <time dateTime={page.modifiedAt}>Updated {displayDate(page.modifiedAt)}</time>
+                <span aria-hidden="true">·</span>
+                <span>Reviewed against BoundaryCI v0.2</span>
+              </>
+            )}
           </div>
         </header>
 
@@ -116,8 +134,10 @@ export function PublicDocumentPage({
       </article>
 
       <section className="document-related" aria-labelledby="related-heading">
-        <span className="eyebrow">Continue learning</span>
-        <h2 id="related-heading">Related BoundaryCI resources</h2>
+        <span className="eyebrow">{page.kind === "legal" ? "Related policies" : "Continue learning"}</span>
+        <h2 id="related-heading">
+          {page.kind === "legal" ? "Related company information" : "Related BoundaryCI resources"}
+        </h2>
         <div>
           {page.related.map((related) => (
             <a href={publicHref(baseUrl, related.href)} key={related.href}>
@@ -129,15 +149,17 @@ export function PublicDocumentPage({
         </div>
       </section>
 
-      <section className="document-cta">
-        <span className="eyebrow">Protect the boundary</span>
-        <h2>Make tenant isolation a repeatable pull-request check.</h2>
-        <p>Run the deterministic scanner locally without database credentials, then add Cloud only when your team needs shared history.</p>
-        <div>
-          <a className="button button-primary" href={ctaHref}>{page.ctaLabel} <span>→</span></a>
-          <a className="button button-secondary" href={publicHref(baseUrl, "/docs/quickstart/")}>Read the quickstart</a>
-        </div>
-      </section>
+      {page.kind !== "legal" && (
+        <section className="document-cta">
+          <span className="eyebrow">Protect the boundary</span>
+          <h2>Make tenant isolation a repeatable pull-request check.</h2>
+          <p>Run the deterministic scanner locally without database credentials, then add Cloud only when your team needs shared history.</p>
+          <div>
+            <a className="button button-primary" href={ctaHref}>{page.ctaLabel} <span>→</span></a>
+            <a className="button button-secondary" href={publicHref(baseUrl, "/docs/quickstart/")}>Read the quickstart</a>
+          </div>
+        </section>
+      )}
 
       <PublicFooter baseUrl={baseUrl} />
     </main>

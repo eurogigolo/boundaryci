@@ -203,7 +203,7 @@ export function AuthScreen({
             </button>
           )}
           <p className="legal-copy">
-            By continuing, you agree to the <a href="https://github.com/sir-gig/boundaryci/blob/main/EULA.md">BoundaryCI terms</a> and acknowledge the <a href="https://github.com/sir-gig/boundaryci/blob/main/PRIVACY.md">privacy notice</a>.
+            By continuing, you agree to the <a href="/terms/">BoundaryCI terms</a> and acknowledge the <a href="/privacy/">privacy notice</a>.
           </p>
         </div>
       </section>
