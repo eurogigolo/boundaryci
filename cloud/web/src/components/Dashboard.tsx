@@ -3,8 +3,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { errorMessage } from "../lib/errors";
 import { planName } from "../lib/billing";
 import { formatRelative, highestSeverity, shortCommit } from "../lib/format";
+import { canManageOrganization } from "../lib/permissions";
 import { requireSupabase } from "../lib/supabase";
 import type { IngestionKeyResult, Organization, Repository, ScanRun } from "../types";
+import { AddRepositoryDialog } from "./AddRepositoryDialog";
 import { Brand } from "./Brand";
 import { Billing } from "./Billing";
 import { OrganizationOnboarding, RepositoryOnboarding } from "./Onboarding";
@@ -42,6 +44,7 @@ export function Dashboard({ session }: { session: Session }) {
   const [revealedToken, setRevealedToken] = useState<RevealedToken | null>(null);
   const [repositoryFilter, setRepositoryFilter] = useState<string>("all");
   const [setupRepositoryId, setSetupRepositoryId] = useState<string | null>(null);
+  const [addingRepository, setAddingRepository] = useState(false);
   const [creatingTokenFor, setCreatingTokenFor] = useState<string | null>(null);
   const [organizationRole, setOrganizationRole] = useState<string | null>(null);
   const billingResult = new URLSearchParams(window.location.search).get("billing");
@@ -154,6 +157,7 @@ export function Dashboard({ session }: { session: Session }) {
     setSelectedScan(null);
     setRepositoryFilter("all");
     setSetupRepositoryId(null);
+    setAddingRepository(false);
   }, [loadWorkspace, selectedOrganizationId]);
 
   useEffect(() => {
@@ -187,6 +191,7 @@ export function Dashboard({ session }: { session: Session }) {
   const setupRepository = repositories.find((repository) => repository.id === setupRepositoryId);
   const passedRuns = runs.filter((run) => run.outcome === "passed").length;
   const passRate = runs.length === 0 ? null : Math.round((passedRuns / runs.length) * 100);
+  const canManage = canManageOrganization(organizationRole);
 
   async function signOut() {
     await requireSupabase().auth.signOut();
@@ -292,7 +297,7 @@ export function Dashboard({ session }: { session: Session }) {
           <Billing
             organization={selectedOrganization}
             monthlyUsage={monthlyUsage}
-            canManage={organizationRole === "owner" || organizationRole === "admin"}
+            canManage={canManage}
             result={billingResult}
             onRefresh={() => {
               void loadOrganizations(selectedOrganization.id, { background: true });
@@ -342,6 +347,15 @@ export function Dashboard({ session }: { session: Session }) {
                 <section className="repository-section">
                   <div className="section-heading">
                     <div><span className="eyebrow">Coverage</span><h2>Repositories</h2></div>
+                    {canManage && (
+                      <button
+                        className="button button-secondary button-small"
+                        type="button"
+                        onClick={() => setAddingRepository(true)}
+                      >
+                        Add repository
+                      </button>
+                    )}
                   </div>
                   <div className="repository-grid">
                     {repositories.map((repository) => {
@@ -365,14 +379,16 @@ export function Dashboard({ session }: { session: Session }) {
                             >
                               {setupRepositoryId === repository.id ? "Hide setup" : "Setup guide"}
                             </button>
-                            <button
-                              className="text-button"
-                              type="button"
-                              disabled={creatingTokenFor === repository.id}
-                              onClick={() => void createReplacementToken(repository)}
-                            >
-                              {creatingTokenFor === repository.id ? "Creating…" : "New token"}
-                            </button>
+                            {canManage && (
+                              <button
+                                className="text-button"
+                                type="button"
+                                disabled={creatingTokenFor === repository.id}
+                                onClick={() => void createReplacementToken(repository)}
+                              >
+                                {creatingTokenFor === repository.id ? "Creating…" : "New token"}
+                              </button>
+                            )}
                           </div>
                         </article>
                       );
@@ -381,6 +397,7 @@ export function Dashboard({ session }: { session: Session }) {
                   {setupRepository && (
                     <RepositorySetupGuide
                       repository={setupRepository}
+                      canManageToken={canManage}
                       onClose={() => setSetupRepositoryId(null)}
                     />
                   )}
@@ -448,6 +465,19 @@ export function Dashboard({ session }: { session: Session }) {
             />
           </div>
         </div>
+      )}
+
+      {addingRepository && canManage && (
+        <AddRepositoryDialog
+          organization={selectedOrganization}
+          onClose={() => setAddingRepository(false)}
+          onRepositoryPersisted={() => void loadWorkspace(selectedOrganization.id, { background: true })}
+          onConnected={(repository, token) => {
+            setAddingRepository(false);
+            setRevealedToken({ repository, token });
+            void loadWorkspace(selectedOrganization.id, { background: true });
+          }}
+        />
       )}
     </div>
   );

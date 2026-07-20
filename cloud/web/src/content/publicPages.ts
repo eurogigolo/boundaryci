@@ -516,6 +516,7 @@ const pages: PublicPage[] = [
         paragraphs: [
           "Create the organization and repository in BoundaryCI Cloud. Copy the one-time repository token, then save it in GitHub under Settings, Secrets and variables, Actions as a repository secret named BOUNDARYCI_CLOUD_TOKEN.",
           "The token is the private credential. The workflow YAML is not private: it contains only the secret name and BoundaryCI ingestion URL. Every repository dashboard keeps the exact file path and YAML available under Setup guide, even after the token screen is closed.",
+          "Organization owners and administrators can use Add repository to repeat this flow for additional GitHub repositories. Each connection receives a separate bound token and history; scans share the organization’s monthly allowance.",
         ],
         code: {
           label: "GitHub Actions secret name",

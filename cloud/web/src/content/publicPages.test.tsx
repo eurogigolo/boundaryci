@@ -105,6 +105,7 @@ describe("public discovery pages", () => {
     expect(quickstart).toContain("Connect a repository to BoundaryCI Cloud");
     expect(quickstart).toContain("BOUNDARYCI_CLOUD_TOKEN");
     expect(quickstart).toContain("Every repository dashboard keeps the exact file path");
+    expect(quickstart).toContain("use Add repository to repeat this flow");
 
     const action = renderPublicRoute("/github-action/", "/");
     expect(action).toContain("Store the token as a GitHub secret");

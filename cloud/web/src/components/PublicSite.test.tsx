@@ -31,6 +31,8 @@ describe("BoundaryCI public launch site", () => {
     expect(markup).toContain("How do I connect a GitHub repository?");
     expect(markup).toContain("BOUNDARYCI_CLOUD_TOKEN");
     expect(markup).toContain("The token never goes in the file");
+    expect(markup).toContain("Can one workspace monitor multiple repositories?");
+    expect(markup).toContain("select Add repository in the dashboard");
     expect(markup).not.toContain("bci_");
   });
 });

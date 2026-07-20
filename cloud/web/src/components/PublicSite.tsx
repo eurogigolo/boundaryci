@@ -247,6 +247,10 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
             <p>Create the repository in BoundaryCI Cloud, store its one-time token as the GitHub Actions secret BOUNDARYCI_CLOUD_TOKEN, and commit the generated workflow YAML. The token never goes in the file, and the repository dashboard keeps the safe YAML available under Setup guide.</p>
           </details>
           <details>
+            <summary>Can one workspace monitor multiple repositories?<span>+</span></summary>
+            <p>Yes. An organization owner or administrator can select Add repository in the dashboard. Each repository receives its own bound token, setup guide, and scan history, while usage is counted against the organization’s shared monthly allowance.</p>
+          </details>
+          <details>
             <summary>Does BoundaryCI connect to my production database?<span>+</span></summary>
             <p>No. The current scanner analyzes migration files and does not require database credentials. Active testing against disposable environments is a future, separately configured capability.</p>
           </details>

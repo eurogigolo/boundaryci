@@ -27,4 +27,15 @@ describe("repository GitHub setup guide", () => {
     expect(markup).toContain("Lost the token?");
     expect(markup).toContain("leave this workflow unchanged");
   });
+
+  it("directs read-only members to an organization manager for replacement tokens", () => {
+    const readOnlyMarkup = renderToStaticMarkup(
+      <RepositorySetupGuide
+        repository={{ full_name: "acme/tenant-api" }}
+        endpoint={endpoint}
+        canManageToken={false}
+      />,
+    );
+    expect(readOnlyMarkup).toContain("Ask an organization owner or administrator");
+  });
 });

@@ -5,6 +5,15 @@ import { requireSupabase } from "../lib/supabase";
 import type { IngestionKeyResult, Organization, Repository } from "../types";
 import { TokenReveal } from "./TokenReveal";
 
+export function repositoryCreationErrorMessage(error: unknown): string {
+  const code = typeof error === "object" && error && "code" in error
+    ? String(error.code)
+    : null;
+  return code === "23505"
+    ? "This GitHub repository is already connected to the organization. Use its existing Setup guide or create a new token from the repository card."
+    : errorMessage(error);
+}
+
 export function OrganizationOnboarding({ onCreated }: { onCreated: (id: string) => void }) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -84,17 +93,18 @@ export function OrganizationOnboarding({ onCreated }: { onCreated: (id: string) 
   );
 }
 
-export function RepositoryOnboarding({
+export function RepositoryConnectionForm({
   organization,
-  onComplete,
+  onConnected,
+  onRepositoryPersisted,
 }: {
   organization: Organization;
-  onComplete: () => void;
+  onConnected: (repository: Repository, token: string) => void;
+  onRepositoryPersisted?: (repository: Repository) => void;
 }) {
   const [fullName, setFullName] = useState("");
   const [defaultBranch, setDefaultBranch] = useState("main");
   const [createdRepository, setCreatedRepository] = useState<Repository | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -131,10 +141,11 @@ export function RepositoryOnboarding({
         if (insertError) throw insertError;
         repository = data as Repository;
         setCreatedRepository(repository);
+        onRepositoryPersisted?.(repository);
       }
-      setToken(await createToken(repository));
+      onConnected(repository, await createToken(repository));
     } catch (caught) {
-      setError(errorMessage(caught));
+      setError(repositoryCreationErrorMessage(caught));
     } finally {
       setBusy(false);
     }
@@ -144,8 +155,54 @@ export function RepositoryOnboarding({
     setError(null);
   }, [fullName]);
 
-  if (createdRepository && token) {
-    return <TokenReveal repository={createdRepository} token={token} onDone={onComplete} />;
+  return (
+    <form className="wide-form" onSubmit={(event) => void submit(event)}>
+      <label>
+        GitHub repository
+        <input
+          value={fullName}
+          onChange={(event) => setFullName(event.target.value)}
+          placeholder="owner/repository"
+          disabled={Boolean(createdRepository)}
+          autoFocus
+          required
+        />
+      </label>
+      <label>
+        Default branch
+        <input
+          value={defaultBranch}
+          onChange={(event) => setDefaultBranch(event.target.value)}
+          placeholder="main"
+          disabled={Boolean(createdRepository)}
+          maxLength={255}
+        />
+      </label>
+      {error && <div className="alert alert-error">{error}</div>}
+      <button className="button button-primary" type="submit" disabled={busy}>
+        {busy ? "Connecting…" : createdRepository ? "Retry token creation" : "Connect repository"}
+      </button>
+    </form>
+  );
+}
+
+export function RepositoryOnboarding({
+  organization,
+  onComplete,
+}: {
+  organization: Organization;
+  onComplete: () => void;
+}) {
+  const [connection, setConnection] = useState<{ repository: Repository; token: string } | null>(null);
+
+  if (connection) {
+    return (
+      <TokenReveal
+        repository={connection.repository}
+        token={connection.token}
+        onDone={onComplete}
+      />
+    );
   }
 
   return (
@@ -159,33 +216,10 @@ export function RepositoryOnboarding({
         <p className="muted">
           The ingestion token will be locked to this exact GitHub repository and stored only as a hash.
         </p>
-        <form className="wide-form" onSubmit={(event) => void submit(event)}>
-          <label>
-            GitHub repository
-            <input
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-              placeholder="owner/repository"
-              disabled={Boolean(createdRepository)}
-              autoFocus
-              required
-            />
-          </label>
-          <label>
-            Default branch
-            <input
-              value={defaultBranch}
-              onChange={(event) => setDefaultBranch(event.target.value)}
-              placeholder="main"
-              disabled={Boolean(createdRepository)}
-              maxLength={255}
-            />
-          </label>
-          {error && <div className="alert alert-error">{error}</div>}
-          <button className="button button-primary" type="submit" disabled={busy}>
-            {busy ? "Connecting…" : createdRepository ? "Retry token creation" : "Connect repository"}
-          </button>
-        </form>
+        <RepositoryConnectionForm
+          organization={organization}
+          onConnected={(repository, token) => setConnection({ repository, token })}
+        />
       </div>
     </section>
   );

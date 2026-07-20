@@ -7,11 +7,13 @@ export function RepositorySetupGuide({
   repository,
   endpoint = ingestionUrl,
   embedded = false,
+  canManageToken = true,
   onClose,
 }: {
   repository: Pick<Repository, "full_name">;
   endpoint?: string;
   embedded?: boolean;
+  canManageToken?: boolean;
   onClose?: () => void;
 }) {
   const workflow = buildActionYaml(endpoint);
@@ -75,7 +77,9 @@ export function RepositorySetupGuide({
 
       <div className="setup-token-note">
         <b>Lost the token?</b>
-        <span>Create a new repository token from the Repositories card, replace the GitHub secret value, and leave this workflow unchanged.</span>
+        <span>{canManageToken
+          ? "Create a new repository token from the Repositories card, replace the GitHub secret value, and leave this workflow unchanged."
+          : "Ask an organization owner or administrator to create a new repository token and replace the GitHub secret value. The workflow stays unchanged."}</span>
       </div>
     </section>
   );
