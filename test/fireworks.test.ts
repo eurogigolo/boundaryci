@@ -57,6 +57,18 @@ describe("Fireworks semantic review", () => {
 
     expect(requestBody).toContain("[REDACTED_");
     expect(requestBody).not.toContain(fakeSecret);
+    const parsedRequest = JSON.parse(requestBody) as {
+      max_tokens: number;
+      response_format: { json_schema: { schema: { properties: { findings: unknown } } } };
+      messages: Array<{ content: string }>;
+    };
+    expect(parsedRequest.max_tokens).toBe(8_192);
+    expect(parsedRequest.response_format.json_schema.schema.properties.findings)
+      .not.toHaveProperty("maxItems");
+    expect(parsedRequest.messages[0]?.content).toContain("valid JSON object");
+    expect(parsedRequest.messages[0]?.content).toContain(
+      "Do not assume compromise of the database owner, service role",
+    );
     expect(result.findings).toHaveLength(1);
     expect(result.findings[0]).toMatchObject({
       ruleId: "AI001",
@@ -64,6 +76,26 @@ describe("Fireworks semantic review", () => {
       severity: "high",
       location: { file: "supabase/migrations/001.sql", line: 2 },
     });
+  });
+
+  it("disables reasoning for DeepSeek V4 structured reviews", async () => {
+    process.env.FIREWORKS_API_KEY = "test-fireworks-key";
+    const config = structuredClone(defaultConfig);
+    config.fireworks.model = "accounts/fireworks/models/deepseek-v4-flash";
+    let requestBody = "";
+    const fetchMock = vi.fn(async (_input: URL | RequestInfo, init?: RequestInit) => {
+      requestBody = String(init?.body ?? "");
+      return new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify({ findings: [] }) } }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    }) as unknown as typeof fetch;
+
+    await reviewWithFireworks([], config, fetchMock);
+
+    expect(JSON.parse(requestBody)).toMatchObject({ reasoning_effort: "none" });
   });
 
   it("requires an API key only when semantic review is invoked", async () => {

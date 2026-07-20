@@ -36,7 +36,6 @@ const responseSchema = {
     properties: {
       findings: {
         type: "array",
-        maxItems: 20,
         items: {
           type: "object",
           additionalProperties: false,
@@ -63,13 +62,12 @@ const responseSchema = {
               enum: ["high", "medium", "low"],
             },
             file: { type: "string" },
-            line: { type: "integer", minimum: 1 },
+            line: { type: "integer" },
             evidence: { type: "string" },
             recommendation: { type: "string" },
             tags: {
               type: "array",
               items: { type: "string" },
-              maxItems: 8,
             },
           },
         },
@@ -252,6 +250,30 @@ function parseResponseContent(content: string): unknown {
     ? trimmed.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "")
     : trimmed;
   return JSON.parse(unfenced) as unknown;
+}
+
+function responseDiagnostics(payload: unknown): Record<string, unknown> {
+  const choice = payload && typeof payload === "object" &&
+      Array.isArray((payload as { choices?: unknown }).choices)
+    ? (payload as { choices: unknown[] }).choices[0]
+    : undefined;
+  const message = choice && typeof choice === "object"
+    ? (choice as { message?: unknown }).message
+    : undefined;
+  const content = message && typeof message === "object"
+    ? (message as { content?: unknown }).content
+    : undefined;
+  return {
+    finishReason: choice && typeof choice === "object"
+      ? (choice as { finish_reason?: unknown }).finish_reason
+      : undefined,
+    contentType: Array.isArray(content) ? "array" : typeof content,
+    contentLength: typeof content === "string" ? content.length : undefined,
+    hasReasoningContent: Boolean(
+      message && typeof message === "object" &&
+        (message as { reasoning_content?: unknown }).reasoning_content,
+    ),
+  };
 }
 
 function normalizedFindings(
@@ -529,13 +551,14 @@ Deno.serve(async (request) => {
       body: JSON.stringify({
         model,
         temperature: 0,
-        max_tokens: 4_096,
+        max_tokens: 8_192,
+        ...(model.includes("deepseek-v4") ? { reasoning_effort: "none" } : {}),
         response_format: { type: "json_schema", json_schema: responseSchema },
         messages: [
           {
             role: "system",
             content:
-              "You are a senior PostgreSQL and Supabase authorization reviewer. Find semantic tenant-isolation vulnerabilities in SQL migrations. Focus on cross-tenant reads, writes, deletes, tenant reassignment, unsafe membership joins, mutable authorization attributes, permissive helper functions, SECURITY DEFINER abuse, and interactions across policies. Do not report style issues. Do not repeat obvious missing-RLS or literal USING(true)/WITH CHECK(true) findings; deterministic rules handle those. Only cite supplied files and line numbers. Return an empty findings array when evidence is insufficient.",
+              "You are a senior PostgreSQL and Supabase authorization reviewer. Find semantic tenant-isolation vulnerabilities in SQL migrations that an untrusted anonymous user or ordinary authenticated tenant member can exploit. Focus on cross-tenant reads, writes, deletes, tenant reassignment, unsafe membership joins, mutable authorization attributes, permissive helper functions, SECURITY DEFINER abuse, and interactions across policies. Do not assume compromise of the database owner, service role, Stripe webhook, organization owner, or organization administrator. A SECURITY DEFINER function is not a vulnerability by itself; report it only when its grants and validation create a concrete cross-tenant path for an untrusted caller. Do not report intentional owner/admin settings, subscription controls, defense-in-depth suggestions, style issues, or risks that merely restate what a trusted role could do. Do not repeat obvious missing-RLS or literal USING(true)/WITH CHECK(true) findings; deterministic rules handle those. Trace grants and predicates before reporting, cite only supplied files and line numbers, and omit a finding unless there is a concrete attacker action and affected tenant boundary. Return only a valid JSON object matching the requested schema, with no markdown or commentary. Return at most 8 concise, non-duplicate findings and at most 8 tags per finding. Return an empty findings array when evidence is insufficient.",
           },
           {
             role: "user",
@@ -580,13 +603,18 @@ Deno.serve(async (request) => {
   }
 
   let normalized: ReturnType<typeof normalizedFindings>;
+  let responsePayload: unknown;
   try {
-    const responsePayload = (await fireworksResponse.json()) as unknown;
+    responsePayload = (await fireworksResponse.json()) as unknown;
     normalized = normalizedFindings(
       parseResponseContent(extractResponseText(responsePayload)),
       files,
     );
   } catch {
+    console.error(
+      "Fireworks returned an invalid structured response.",
+      responseDiagnostics(responsePayload),
+    );
     await recordFailure(reviewId, "invalid-response");
     return json(request, 503, {
       error: "Managed AI review returned an invalid response.",
