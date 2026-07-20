@@ -28,6 +28,15 @@ The scanner runs locally or inside GitHub Actions without database credentials. 
 - How to test Supabase row-level security: https://boundaryci.com/guides/test-supabase-rls/
 - PostgreSQL multi-tenant security: https://boundaryci.com/guides/postgresql-multi-tenant-security/
 
+## AI-assisted tenant review
+
+- AI-assisted Supabase RLS review: https://boundaryci.com/ai-supabase-rls-review/
+- AI-assisted PostgreSQL security review: https://boundaryci.com/ai-postgresql-security-review/
+- AI tenant-security review in GitHub Actions: https://boundaryci.com/ai-code-review-github-actions/
+- Deterministic versus AI RLS analysis: https://boundaryci.com/guides/deterministic-vs-ai-rls-analysis/
+
+Managed AI is a consent-gated capability on paid BoundaryCI Cloud plans. It uses BoundaryCI's server-side Fireworks credential, accepts locally redacted migration text only after an eligibility check, and returns normalized findings without BoundaryCI storing the migration input. AI findings are advisory by default; the six deterministic rules remain the default source of truth for CI exit decisions.
+
 ## Deterministic rule reference
 
 - Rule index: https://boundaryci.com/rules/

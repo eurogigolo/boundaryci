@@ -11,6 +11,15 @@ describe("BoundaryCI public launch site", () => {
     expect(markup).toContain("No database credentials");
   });
 
+  it("positions managed AI as an optional layer over deterministic CI", () => {
+    expect(markup).toContain("Managed AI tenant review is live");
+    expect(markup).toContain("Known failures get hard rules");
+    expect(markup).toContain("Advisory by default");
+    expect(markup).toContain("Provider key stays server-side");
+    expect(markup).toContain('href="/ai-supabase-rls-review/"');
+    expect(markup).toContain('href="/docs/managed-ai/"');
+  });
+
   it("publishes the current pricing without changing product limits", () => {
     expect(markup).toContain("$49");
     expect(markup).toContain("$149");

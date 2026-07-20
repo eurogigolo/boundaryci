@@ -1,6 +1,7 @@
 export const SITE_ORIGIN = "https://boundaryci.com";
 export const CONTENT_DATE = "2026-07-18";
 export const BILLING_READINESS_DATE = "2026-07-19";
+export const AI_MARKETING_DATE = "2026-07-20";
 
 export type PublicPageKind =
   | "product"
@@ -32,6 +33,11 @@ export interface RelatedPage {
   description: string;
 }
 
+export interface PublicFaq {
+  question: string;
+  answer: string;
+}
+
 export interface PublicPage {
   path: string;
   kind: PublicPageKind;
@@ -45,6 +51,11 @@ export interface PublicPage {
   sections: PageSection[];
   related: RelatedPage[];
   ctaLabel: string;
+  faqs?: PublicFaq[];
+  ctaHeading?: string;
+  ctaDescription?: string;
+  ctaSecondaryLabel?: string;
+  ctaSecondaryHref?: string;
   ruleId?: string;
   severity?: "critical" | "high" | "medium";
 }
@@ -57,6 +68,7 @@ export interface PublicRouteMetadata {
   heading: string;
   publishedAt: string;
   modifiedAt: string;
+  faqs?: PublicFaq[];
 }
 
 export interface RuleSummary {
@@ -67,15 +79,47 @@ export interface RuleSummary {
   path: string;
 }
 
+export const HOME_FAQS: PublicFaq[] = [
+  {
+    question: "How do I connect a GitHub repository?",
+    answer: "Create the repository in BoundaryCI Cloud, store its one-time token as the GitHub Actions secret BOUNDARYCI_CLOUD_TOKEN, and commit the generated workflow YAML. The token never goes in the file, and the repository dashboard keeps the safe YAML available under Setup guide.",
+  },
+  {
+    question: "Can one workspace monitor multiple repositories?",
+    answer: "Yes. An organization owner or administrator can select Add repository in the dashboard. Each repository receives its own bound token, setup guide, and scan history, while usage is counted against the organization's shared monthly allowance.",
+  },
+  {
+    question: "Does BoundaryCI connect to my production database?",
+    answer: "No. The current scanner analyzes migration files and does not require database credentials. Active testing against disposable environments is a future, separately configured capability.",
+  },
+  {
+    question: "What does BoundaryCI Cloud receive?",
+    answer: "Cloud history receives repository and commit context, summary counts, finding metadata, and short redacted evidence and remediation snippets. Complete migration files are excluded from history. If a paid organization separately enables managed AI, up to 80,000 characters of locally redacted migration text pass transiently through BoundaryCI to Fireworks and are not stored by BoundaryCI.",
+  },
+  {
+    question: "Is Fireworks AI required?",
+    answer: "No. Six deterministic checks work without AI and remain the source of truth for merge decisions. Team, Growth, and Enterprise organizations can authorize BoundaryCI's managed Fireworks review without creating their own Fireworks account, then disable it by organization, repository, or workflow.",
+  },
+  {
+    question: "Does this replace a penetration test?",
+    answer: "No. BoundaryCI is a focused continuous control for tenant-isolation regressions. It complements threat modeling, code review, testing, and independent security assessments.",
+  },
+  {
+    question: "Can I adopt it with existing findings?",
+    answer: "Yes. Commit a reviewed baseline, then fail CI only when a new regression appears. Owned, expiring waivers keep temporary exceptions visible.",
+  },
+];
+
 export const HOME_ROUTE: PublicRouteMetadata = {
   path: "/",
   kind: "home",
-  title: "BoundaryCI — Tenant-isolation security for SaaS",
+  title: "BoundaryCI — AI-Assisted Tenant-Isolation Security for SaaS",
   description:
-    "Catch Supabase and PostgreSQL tenant-isolation mistakes before one SaaS customer can access another customer's data. Free local scanner and paid Cloud history.",
+    "Catch Supabase and PostgreSQL tenant-isolation flaws with deterministic CI checks and optional managed AI review before they reach production.",
   heading: "Stop one customer from seeing another customer's data.",
   publishedAt: CONTENT_DATE,
-  modifiedAt: BILLING_READINESS_DATE,
+  modifiedAt: AI_MARKETING_DATE,
+  faqs: HOME_FAQS,
 };
 
 export const RULE_SUMMARIES: RuleSummary[] = [
@@ -138,6 +182,11 @@ const sharedRelated = {
     href: "/security/",
     label: "Security and data handling",
     description: "See what stays local and what optional Cloud upload contains.",
+  },
+  managedAi: {
+    href: "/docs/managed-ai/",
+    label: "Managed AI review",
+    description: "Review consent, data flow, advisory defaults, and opt-out controls.",
   },
 };
 
@@ -646,6 +695,341 @@ const pages: PublicPage[] = [
     ctaLabel: "Enable managed AI review",
   },
   {
+    path: "/ai-supabase-rls-review/",
+    kind: "product",
+    title: "AI Supabase RLS Review for SaaS | BoundaryCI",
+    description:
+      "Review Supabase RLS migrations with deterministic security checks and optional managed AI analysis for tenant-policy interactions and missing row correlation.",
+    eyebrow: "AI-assisted Supabase review",
+    heading: "Review Supabase RLS with deterministic checks and a second semantic layer.",
+    introduction:
+      "BoundaryCI checks the final state of ordered Supabase migrations in CI. Six deterministic rules catch known unsafe shapes, while optional managed Fireworks AI reviews how policies, memberships, tenant keys, and privileged functions work together.",
+    publishedAt: AI_MARKETING_DATE,
+    modifiedAt: AI_MARKETING_DATE,
+    sections: [
+      {
+        id: "two-layers",
+        heading: "Use deterministic and AI review for different jobs",
+        paragraphs: [
+          "Deterministic rules are repeatable, explainable, and suitable for blocking a pull request. They find known final-state conditions such as a public USING (true) policy or a SECURITY DEFINER function left executable by PUBLIC.",
+          "Managed AI is the advisory second layer. It looks for relationships that are difficult to reduce to one syntax rule, then returns bounded findings with evidence, risk, and remediation through the same BoundaryCI report.",
+        ],
+        bullets: [
+          "Deterministic findings remain the default merge decision",
+          "AI findings are advisory unless a team explicitly changes that setting",
+          "Provider failure never stops deterministic scanning",
+          "Both layers appear in pull-request and Cloud evidence",
+        ],
+      },
+      {
+        id: "semantic-example",
+        heading: "Catch membership checks that never correlate to the row",
+        paragraphs: [
+          "A policy can call auth.uid() and prove that a user belongs to an organization while still failing to compare that organization with the protected row's organization_id. The SQL looks security-aware, but a member of tenant A may still reach tenant B.",
+          "BoundaryCI's managed review is designed to flag that policy interaction for human review. You still validate the finding against application behavior and two-tenant tests before treating it as proven exposure.",
+        ],
+        code: {
+          label: "The relationship semantic review looks for",
+          language: "sql",
+          value: "where membership.user_id = auth.uid()\n  and membership.organization_id = projects.organization_id",
+        },
+      },
+      {
+        id: "pull-request",
+        heading: "Run the review inside the existing GitHub workflow",
+        paragraphs: [
+          "Connect a repository to BoundaryCI Cloud, add its bound token as BOUNDARYCI_CLOUD_TOKEN, and commit the generated Action workflow. Eligible paid organizations can authorize managed review in the dashboard without creating a Fireworks account or adding a provider key to GitHub.",
+        ],
+        code: {
+          label: "Managed review Action input",
+          language: "yaml",
+          value: "          managed-fireworks: \"true\"\n          cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}",
+        },
+      },
+      {
+        id: "data-controls",
+        heading: "Keep consent and repository controls explicit",
+        paragraphs: [
+          "An organization owner or administrator must accept the managed-AI disclosure. BoundaryCI checks plan eligibility, consent, and the repository setting before the runner sends any migration text.",
+          "When authorized, the runner redacts common secret patterns locally and sends at most 80,000 characters transiently through BoundaryCI to Fireworks. BoundaryCI does not store the migration input; normalized findings and bounded operational metadata can enter Cloud history.",
+        ],
+        note: "Redaction is defense in depth, not a guarantee. Migration files should never contain production credentials or unnecessary personal data.",
+      },
+      {
+        id: "scope",
+        heading: "Know what AI review does not prove",
+        paragraphs: [
+          "A static AI review does not execute JWT claims, application queries, storage policies, generated SQL, or service-role code. It is another review signal—not a penetration test, formal proof, or replacement for active two-tenant authorization tests.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Does AI replace BoundaryCI's deterministic RLS checks?",
+        answer: "No. The six deterministic rules remain the reliable source of truth for merge decisions. Managed AI adds advisory analysis for policy relationships and context that fixed syntax checks may not capture.",
+      },
+      {
+        question: "Do customers need a Fireworks API key?",
+        answer: "No. Team, Growth, and Enterprise organizations can use BoundaryCI's server-side Fireworks credential after an owner or administrator authorizes managed review. Bring-your-own-key mode remains available for advanced direct use.",
+      },
+      {
+        question: "Are Supabase migration files stored by BoundaryCI?",
+        answer: "Not as managed-AI input. Authorized, locally redacted migration text passes transiently through BoundaryCI to Fireworks, while normalized findings and bounded metadata can be preserved in Cloud history.",
+      },
+    ],
+    related: [sharedRelated.managedAi, { href: "/guides/deterministic-vs-ai-rls-analysis/", label: "Deterministic vs. AI RLS analysis", description: "Choose the right review layer for each kind of tenant-isolation risk." }, { href: "/guides/test-supabase-rls/", label: "Test Supabase RLS", description: "Validate policy behavior with two tenant identities." }],
+    ctaLabel: "Review a Supabase repository",
+    ctaHeading: "Add a second review layer without weakening the first.",
+    ctaDescription: "Start with deterministic Supabase checks, then authorize managed AI when your team wants semantic review in the same pull request.",
+    ctaSecondaryLabel: "Read managed AI docs",
+    ctaSecondaryHref: "/docs/managed-ai/",
+  },
+  {
+    path: "/ai-postgresql-security-review/",
+    kind: "product",
+    title: "AI PostgreSQL Security Review for Multi-Tenant SaaS | BoundaryCI",
+    description:
+      "Review PostgreSQL migrations for multi-tenant security flaws with deterministic RLS checks and optional AI analysis of policies and privileged functions.",
+    eyebrow: "AI-assisted PostgreSQL review",
+    heading: "Review the PostgreSQL boundary your multi-tenant SaaS depends on.",
+    introduction:
+      "BoundaryCI reconstructs the authorization state left by ordered PostgreSQL migrations. Deterministic rules identify known RLS and SECURITY DEFINER failures; optional managed AI adds contextual review of tenant keys, memberships, policies, and privilege paths.",
+    publishedAt: AI_MARKETING_DATE,
+    modifiedAt: AI_MARKETING_DATE,
+    sections: [
+      {
+        id: "review-scope",
+        heading: "Focus AI-assisted review on tenant-boundary changes",
+        paragraphs: [
+          "General-purpose code review can produce broad suggestions. BoundaryCI narrows the question to one security invariant: can a valid action by one customer reach data or privileged behavior owned by another customer?",
+        ],
+        bullets: [
+          "RLS policy expressions and the row tenant key they constrain",
+          "Membership joins that prove identity but not row ownership",
+          "USING and WITH CHECK coverage across read and write operations",
+          "SECURITY DEFINER functions and surrounding execution privileges",
+        ],
+      },
+      {
+        id: "deterministic-foundation",
+        heading: "Keep known PostgreSQL failures deterministic",
+        paragraphs: [
+          "Missing RLS, unconditional policies, unsafe search_path, and default PUBLIC execution have narrow conditions that do not need probabilistic judgment. BoundaryCI reports those checks consistently and can block new high-severity regressions.",
+          "Managed AI supplements that foundation when the risk depends on relationships across multiple definitions. It does not silently replace the deterministic result or change the default exit code.",
+        ],
+      },
+      {
+        id: "migration-state",
+        heading: "Review final migration state instead of isolated snippets",
+        paragraphs: [
+          "A later migration may drop, replace, rename, or re-grant an object. BoundaryCI follows migration order before evaluating the remaining state, reducing noise from SQL that no longer defines the deployed boundary.",
+          "The managed review receives locally redacted migration context only after an eligible organization explicitly authorizes it, giving the model enough surrounding information to reason about policy interactions.",
+        ],
+      },
+      {
+        id: "ci-evidence",
+        heading: "Put findings beside the migration that introduced them",
+        paragraphs: [
+          "The GitHub Action returns file-aware annotations and preserves normalized results in BoundaryCI Cloud. Teams can compare corrected reruns, keep waivers owned and expiring, and separate deterministic findings from AI review signals.",
+        ],
+        code: {
+          label: "Run the deterministic scanner locally",
+          language: "bash",
+          value: "npx boundaryci scan . --profile postgres --fail-on high",
+        },
+      },
+      {
+        id: "limits",
+        heading: "Combine migration review with active authorization tests",
+        paragraphs: [
+          "Neither static rules nor AI can observe live roles, claims, application queries, dynamic SQL, or operational access paths from migration text alone. Exercise at least two tenants in a disposable environment and independently review privileged service code.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Can BoundaryCI AI review any PostgreSQL schema?",
+        answer: "BoundaryCI is intentionally focused on ordered SQL migrations for multi-tenant authorization. It reviews RLS policies, tenant relationships, and privileged functions; it is not a general database performance or correctness analyzer.",
+      },
+      {
+        question: "Can an AI finding block a pull request?",
+        answer: "AI findings are advisory by default. A team can explicitly include them in the exit decision after evaluating quality on its repositories, while deterministic checks continue to operate independently.",
+      },
+      {
+        question: "Does the scanner need PostgreSQL credentials?",
+        answer: "No. BoundaryCI reads ordered migration files and does not connect to a production database. Runtime authorization testing is a separate layer teams should perform in a disposable environment.",
+      },
+    ],
+    related: [{ href: "/guides/postgresql-multi-tenant-security/", label: "PostgreSQL tenant security guide", description: "Design RLS, tenant keys, roles, and privileged functions together." }, { href: "/guides/deterministic-vs-ai-rls-analysis/", label: "Deterministic vs. AI analysis", description: "Understand which review layer should make each decision." }, sharedRelated.security],
+    ctaLabel: "Review PostgreSQL migrations",
+    ctaHeading: "Make PostgreSQL tenant review continuous.",
+    ctaDescription: "Scan locally without database access, then add managed AI and Cloud evidence when the repository is ready.",
+    ctaSecondaryLabel: "Read the PostgreSQL guide",
+    ctaSecondaryHref: "/guides/postgresql-multi-tenant-security/",
+  },
+  {
+    path: "/ai-code-review-github-actions/",
+    kind: "product",
+    title: "AI Security Review in GitHub Actions | BoundaryCI",
+    description:
+      "Add tenant-isolation review to GitHub Actions with deterministic merge checks, optional managed AI findings, native annotations, and Cloud evidence.",
+    eyebrow: "AI review in GitHub Actions",
+    heading: "Put deterministic and AI tenant review in every migration pull request.",
+    introduction:
+      "BoundaryCI runs inside GitHub Actions, annotates risky Supabase and PostgreSQL migration lines, and keeps deterministic failures separate from optional managed AI observations. Reviewers see one focused tenant-isolation report without managing an AI provider key.",
+    publishedAt: AI_MARKETING_DATE,
+    modifiedAt: AI_MARKETING_DATE,
+    sections: [
+      {
+        id: "workflow",
+        heading: "Install one repository-bound workflow",
+        paragraphs: [
+          "Create the repository in BoundaryCI Cloud, save the one-time token as BOUNDARYCI_CLOUD_TOKEN, and commit the generated workflow. The committed YAML contains only a secret reference; the credential remains in GitHub's encrypted Actions secret store.",
+        ],
+        code: {
+          label: "BoundaryCI GitHub Action",
+          language: "yaml",
+          value: "- uses: sir-gig/boundaryci@v0.3.0\n  with:\n    target: .\n    fail-on: high\n    managed-fireworks: \"true\"\n    upload: \"true\"\n    cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}",
+        },
+      },
+      {
+        id: "review-output",
+        heading: "Give reviewers evidence at the changed line",
+        paragraphs: [
+          "Deterministic findings include a rule ID, severity, location, evidence, and remediation. Managed AI returns schema-constrained findings through the same reporting path, labeled so reviewers can distinguish repeatable checks from contextual analysis.",
+          "A baseline can acknowledge reviewed existing debt. New non-waived deterministic findings at the configured threshold still fail the job, which allows branch protection to block the regression.",
+        ],
+      },
+      {
+        id: "managed-provider",
+        heading: "Use managed Fireworks without adding its key to GitHub",
+        paragraphs: [
+          "Team, Growth, and Enterprise organization managers can authorize managed review once in BoundaryCI. The Fireworks API credential stays server-side, and the existing repository token handles eligibility and review requests.",
+          "A manager can disable managed review for the organization or a repository. A workflow can also set managed-fireworks to false, allowing the same scanner to remain deterministic-only.",
+        ],
+      },
+      {
+        id: "failure-boundary",
+        heading: "Keep CI useful when the AI provider is unavailable",
+        paragraphs: [
+          "Timeouts, rate limits, or invalid model output produce a warning rather than erasing the deterministic result. Managed AI is advisory by default, so a third-party outage does not turn a security check into an unrelated release blocker.",
+        ],
+      },
+      {
+        id: "multiple-repositories",
+        heading: "Repeat the setup across repositories",
+        paragraphs: [
+          "An organization can add multiple repositories from its dashboard. Each repository receives a separate bound token, enablement control, setup guide, and scan history while paid usage is counted at the organization level.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: "Is this a general AI code-review bot?",
+        answer: "No. BoundaryCI is deliberately focused on tenant-isolation risks in ordered Supabase and PostgreSQL SQL migrations. That narrow scope keeps its evidence and recommendations relevant to the customer-data boundary.",
+      },
+      {
+        question: "Which GitHub secret does the workflow need?",
+        answer: "Cloud-connected workflows use BOUNDARYCI_CLOUD_TOKEN, a repository-bound credential shown once during setup. Managed mode does not require customers to add FIREWORKS_API_KEY to GitHub.",
+      },
+      {
+        question: "What happens if Fireworks is unavailable?",
+        answer: "BoundaryCI warns about the managed review failure and continues deterministic scanning and Cloud upload. Deterministic findings can still enforce the configured pull-request gate.",
+      },
+    ],
+    related: [{ href: "/github-action/", label: "GitHub Action setup", description: "Follow the complete token, workflow, and branch-protection setup." }, sharedRelated.managedAi, { href: "/ai-supabase-rls-review/", label: "AI Supabase RLS review", description: "See the policy interactions the optional review targets." }],
+    ctaLabel: "Connect a GitHub repository",
+    ctaHeading: "Bring tenant-isolation review into the pull request.",
+    ctaDescription: "Start with a repository-bound workflow and deterministic merge checks. Enable managed AI only when your organization authorizes it.",
+    ctaSecondaryLabel: "Read the Action guide",
+    ctaSecondaryHref: "/github-action/",
+  },
+  {
+    path: "/guides/deterministic-vs-ai-rls-analysis/",
+    kind: "guide",
+    title: "Deterministic vs AI RLS Analysis | BoundaryCI Guide",
+    description:
+      "Compare deterministic RLS checks with AI-assisted policy review, including strengths, limitations, CI behavior, privacy controls, and when to use both.",
+    eyebrow: "RLS analysis guide",
+    heading: "Use deterministic rules and AI review where each is strongest.",
+    introduction:
+      "Reliable tenant-isolation CI does not require choosing between fixed rules and AI. Known unsafe policy states should stay deterministic; contextual relationships can benefit from an advisory semantic review that never hides or replaces the repeatable result.",
+    publishedAt: AI_MARKETING_DATE,
+    modifiedAt: AI_MARKETING_DATE,
+    sections: [
+      {
+        id: "deterministic",
+        heading: "Deterministic analysis answers narrow, repeatable questions",
+        paragraphs: [
+          "A deterministic rule has a reviewable condition and returns the same answer for the same final migration state. This makes it appropriate for required CI checks, baselines, waivers, and audit evidence.",
+        ],
+        bullets: [
+          "Is RLS enabled on every exposed table?",
+          "Does an anon, PUBLIC, or authenticated policy reduce to true?",
+          "Is a SECURITY DEFINER search path pinned?",
+          "Was default PUBLIC execution explicitly revoked?",
+        ],
+      },
+      {
+        id: "ai",
+        heading: "AI review explores relationships that resist one syntax rule",
+        paragraphs: [
+          "A policy may contain auth.uid(), a membership lookup, and a tenant column yet connect them incorrectly. Contextual review can examine those definitions together and explain a plausible cross-tenant path for a human to validate.",
+          "The tradeoff is probabilistic output: a model can miss a flaw or raise an unhelpful concern. BoundaryCI therefore labels managed findings and keeps them advisory by default.",
+        ],
+      },
+      {
+        id: "comparison",
+        heading: "Let the risk determine the review layer",
+        paragraphs: [
+          "Use deterministic rules for known conditions that must be enforced consistently. Use AI to widen reviewer attention when meaning depends on several policies, functions, or membership relationships. Use runtime tests when the answer depends on actual roles, claims, requests, or application code.",
+        ],
+        bullets: [
+          "Merge gate: deterministic findings by default",
+          "Contextual hypothesis: AI-assisted finding with human validation",
+          "Behavioral proof: active negative tests with two tenants",
+          "Broad assurance: threat modeling, manual review, and independent testing",
+        ],
+      },
+      {
+        id: "safe-adoption",
+        heading: "Adopt AI review without making CI fragile",
+        paragraphs: [
+          "Run both layers on representative repositories and measure whether AI findings identify useful policy interactions. Keep deterministic checks enabled, preserve AI findings separately, and leave them out of the exit code until the team has an evidence-based reason to change that default.",
+          "Provider unavailability should degrade to a warning. Repository and organization opt-outs should remain available so an outage, sensitive project, or noisy review never requires removing the underlying security gate.",
+        ],
+      },
+      {
+        id: "privacy",
+        heading: "Make transmission a consented decision",
+        paragraphs: [
+          "BoundaryCI requires eligible-plan status and manager authorization before managed review. The runner checks eligibility before sending migration content, redacts common secret patterns locally, and limits input size. BoundaryCI does not store the forwarded migration text.",
+        ],
+        note: "Static review of any kind is incomplete. Pair it with runtime authorization tests and never place production secrets in migration files.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Is AI more accurate than deterministic RLS analysis?",
+        answer: "They answer different questions. Deterministic rules are more reliable for known syntax and final-state conditions. AI can surface contextual relationships those rules do not model, but its findings require human validation.",
+      },
+      {
+        question: "Should AI findings fail CI?",
+        answer: "Not initially. BoundaryCI keeps them advisory by default. Teams should measure quality on their own migrations before explicitly including AI findings in an exit decision.",
+      },
+      {
+        question: "Do I need both AI review and runtime RLS tests?",
+        answer: "Yes, when the boundary is important. Static review cannot execute live JWT claims, application queries, storage access, or service-role paths. Two-tenant negative tests provide a separate kind of evidence.",
+      },
+    ],
+    related: [{ href: "/ai-supabase-rls-review/", label: "AI Supabase RLS review", description: "Apply the layered model to Supabase migrations." }, { href: "/ai-postgresql-security-review/", label: "AI PostgreSQL review", description: "Apply it to PostgreSQL tenant policies and privileged functions." }, sharedRelated.rules],
+    ctaLabel: "Run deterministic checks first",
+    ctaHeading: "Build the reliable layer first, then widen the review.",
+    ctaDescription: "BoundaryCI starts with deterministic tenant-isolation checks and adds managed AI as a clearly labeled, consent-gated signal.",
+    ctaSecondaryLabel: "Read managed AI docs",
+    ctaSecondaryHref: "/docs/managed-ai/",
+  },
+  {
     path: "/rules/",
     kind: "rule-index",
     title: "BoundaryCI Tenant-Isolation Rules | BND001–BND006",
@@ -1071,6 +1455,7 @@ export const PUBLIC_ROUTES: PublicRouteMetadata[] = [
     heading: page.heading,
     publishedAt: page.publishedAt,
     modifiedAt: page.modifiedAt,
+    faqs: page.faqs,
   })),
 ];
 

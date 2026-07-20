@@ -1,4 +1,5 @@
 import { BILLING_PLANS } from "../lib/billing";
+import { HOME_FAQS } from "../content/publicPages";
 import {
   GITHUB_URL,
   MARKETPLACE_URL,
@@ -18,15 +19,14 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
       <section className="launch-hero">
         <div className="launch-hero-glow" aria-hidden="true" />
         <div className="launch-hero-copy">
-          <a className="launch-release-pill" href={`${GITHUB_URL}/releases`}>
-            <span>New</span> BoundaryCI Cloud is live <b>→</b>
+          <a className="launch-release-pill" href={publicHref(baseUrl, "/docs/managed-ai/")}>
+            <span>New</span> Managed AI tenant review is live <b>→</b>
           </a>
           <span className="eyebrow">Tenant-isolation security for SaaS</span>
           <h1>Stop one customer from seeing <em>another customer&apos;s data.</em></h1>
           <p>
-            BoundaryCI catches dangerous Supabase and PostgreSQL authorization changes before
-            they reach production—then preserves the evidence your team needs to ship with
-            confidence.
+            BoundaryCI combines deterministic CI checks with optional managed AI review to catch
+            dangerous Supabase and PostgreSQL authorization changes before they reach production.
           </p>
           <div className="launch-hero-actions">
             <a className="button button-primary launch-primary-cta" href={signUpUrl}>
@@ -39,7 +39,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
           <div className="launch-command" aria-label="BoundaryCI quick start command">
             <span>$</span><code>npx boundaryci scan .</code>
           </div>
-          <p className="launch-hero-note">Free local scanner · No database credentials · Cloud optional</p>
+          <p className="launch-hero-note">Free deterministic scanner · Managed AI on paid plans · No database credentials</p>
         </div>
 
         <div className="launch-terminal-wrap" aria-label="Example BoundaryCI scan result">
@@ -81,7 +81,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
             </div>
           </div>
           <div className="launch-proof-card proof-card-top">
-            <span>Policy review</span><b>Tenant boundary checked</b><i>✓</i>
+            <span>Managed AI</span><b>Policy interaction reviewed</b><i>✓</i>
           </div>
           <div className="launch-proof-card proof-card-bottom">
             <span>Cloud history</span><b>Evidence preserved</b><i>✓</i>
@@ -160,6 +160,45 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
             </div>
             <h3>Preserve team-wide history</h3>
             <p>Store minimized findings, usage, and remediation evidence behind tenant-safe access.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="launch-ai launch-section" id="managed-ai">
+        <div className="launch-ai-copy">
+          <span className="eyebrow">Deterministic + AI</span>
+          <h2>Known failures get hard rules. Subtle policy interactions get a second review.</h2>
+          <p>
+            BoundaryCI&apos;s six deterministic checks remain the reliable merge gate. Paid teams can
+            authorize managed Fireworks AI to examine how tenant keys, memberships, RLS policies,
+            and privileged functions work together—without managing another provider key.
+          </p>
+          <div className="launch-ai-actions">
+            <a className="button button-primary" href={publicHref(baseUrl, "/ai-supabase-rls-review/")}>Explore AI-assisted review <span>→</span></a>
+            <a className="button button-secondary" href={publicHref(baseUrl, "/docs/managed-ai/")}>Read the data flow</a>
+          </div>
+          <div className="launch-ai-trust" aria-label="Managed AI controls">
+            <span><i>01</i><b>Advisory by default</b></span>
+            <span><i>02</i><b>Explicit manager consent</b></span>
+            <span><i>03</i><b>Provider key stays server-side</b></span>
+          </div>
+        </div>
+        <div className="launch-ai-visual" aria-label="Deterministic and managed AI review layers">
+          <div className="launch-ai-window-bar">
+            <span><i /><i /><i /></span>
+            <code>tenant-review / projects.sql</code>
+          </div>
+          <article className="launch-ai-layer deterministic-layer">
+            <div><span>DETERMINISTIC</span><b>Merge gate</b></div>
+            <h3>BND004 · Authenticated policy is not tenant-scoped</h3>
+            <p>Repeatable final-state rule with file evidence and remediation.</p>
+            <strong>HIGH · BLOCKING</strong>
+          </article>
+          <article className="launch-ai-layer semantic-layer">
+            <div><span>MANAGED AI</span><b>Advisory review</b></div>
+            <h3>Membership check may not correlate to the protected row</h3>
+            <p>The policy proves membership in an organization, but does not compare it with <code>projects.organization_id</code>.</p>
+            <strong>REVIEW · HUMAN VALIDATION</strong>
           </article>
         </div>
       </section>
@@ -243,34 +282,12 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
           <h2>What teams need to know before trusting a security check.</h2>
         </div>
         <div className="launch-faq-list">
-          <details>
-            <summary>How do I connect a GitHub repository?<span>+</span></summary>
-            <p>Create the repository in BoundaryCI Cloud, store its one-time token as the GitHub Actions secret BOUNDARYCI_CLOUD_TOKEN, and commit the generated workflow YAML. The token never goes in the file, and the repository dashboard keeps the safe YAML available under Setup guide.</p>
-          </details>
-          <details>
-            <summary>Can one workspace monitor multiple repositories?<span>+</span></summary>
-            <p>Yes. An organization owner or administrator can select Add repository in the dashboard. Each repository receives its own bound token, setup guide, and scan history, while usage is counted against the organization’s shared monthly allowance.</p>
-          </details>
-          <details>
-            <summary>Does BoundaryCI connect to my production database?<span>+</span></summary>
-            <p>No. The current scanner analyzes migration files and does not require database credentials. Active testing against disposable environments is a future, separately configured capability.</p>
-          </details>
-          <details>
-            <summary>What does BoundaryCI Cloud receive?<span>+</span></summary>
-            <p>Cloud history receives repository and commit context, summary counts, finding metadata, and short redacted evidence and remediation snippets. Complete migration files are excluded from history. If a paid organization separately enables managed AI, up to 80,000 characters of locally redacted migration text pass transiently through BoundaryCI to Fireworks and are not stored by BoundaryCI.</p>
-          </details>
-          <details>
-            <summary>Is Fireworks AI required?<span>+</span></summary>
-            <p>No. Six deterministic checks work without AI and remain the source of truth for merge decisions. Team, Growth, and Enterprise organizations can authorize BoundaryCI&apos;s managed Fireworks review without creating their own Fireworks account, then disable it by organization, repository, or workflow.</p>
-          </details>
-          <details>
-            <summary>Does this replace a penetration test?<span>+</span></summary>
-            <p>No. BoundaryCI is a focused continuous control for tenant-isolation regressions. It complements threat modeling, code review, testing, and independent security assessments.</p>
-          </details>
-          <details>
-            <summary>Can I adopt it with existing findings?<span>+</span></summary>
-            <p>Yes. Commit a reviewed baseline, then fail CI only when a new regression appears. Owned, expiring waivers keep temporary exceptions visible.</p>
-          </details>
+          {HOME_FAQS.map((faq) => (
+            <details key={faq.question}>
+              <summary>{faq.question}<span>+</span></summary>
+              <p>{faq.answer}</p>
+            </details>
+          ))}
         </div>
       </section>
 
@@ -278,7 +295,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
         <div className="final-cta-grid" aria-hidden="true" />
         <span className="eyebrow">Protect the boundary</span>
         <h2>Your next migration should not become your next breach.</h2>
-        <p>Run the scanner locally, then connect your first repository to preserve the evidence.</p>
+        <p>Run deterministic checks locally, then connect your repository for optional managed AI review and durable evidence.</p>
         <div>
           <a className="button button-primary launch-primary-cta" href={signUpUrl}>Start free <span>→</span></a>
           <a className="button button-secondary" href={MARKETPLACE_URL}>Add from Marketplace</a>

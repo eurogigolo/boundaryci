@@ -14,7 +14,7 @@ import { structuredDataForRoute } from "../lib/seo";
 
 describe("public discovery pages", () => {
   it("defines a unique, descriptive route for every indexable page", () => {
-    expect(PUBLIC_ROUTES).toHaveLength(19);
+    expect(PUBLIC_ROUTES).toHaveLength(23);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.path)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.title)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.description)).size).toBe(PUBLIC_ROUTES.length);
@@ -115,6 +115,32 @@ describe("public discovery pages", () => {
     expect(managedAi).toContain("Authorize once in the dashboard");
     expect(managedAi).toContain("Migration text is not included");
     expect(managedAi).toContain("managed-fireworks: &quot;false&quot;");
+  });
+
+  it("publishes substantial AI discovery pages with visible and structured FAQs", () => {
+    const aiPaths = [
+      "/ai-supabase-rls-review/",
+      "/ai-postgresql-security-review/",
+      "/ai-code-review-github-actions/",
+      "/guides/deterministic-vs-ai-rls-analysis/",
+    ];
+
+    for (const path of aiPaths) {
+      const route = getPublicRoute(path);
+      const page = getPublicPage(path);
+      const markup = renderPublicRoute(path, "/");
+      const schema = JSON.stringify(route && structuredDataForRoute(route));
+
+      expect(page?.sections.length).toBeGreaterThanOrEqual(5);
+      expect(page?.faqs?.length).toBeGreaterThanOrEqual(3);
+      expect(markup).toContain("Frequently asked questions");
+      expect(markup).toContain(renderToStaticMarkup(<>{page?.faqs?.[0]?.question}</>));
+      expect(schema).toContain('"@type":"FAQPage"');
+      expect(schema).toContain(page?.faqs?.[0]?.answer);
+    }
+
+    const homeSchema = JSON.stringify(structuredDataForRoute(PUBLIC_ROUTES[0]));
+    expect(homeSchema).toContain('"@type":"FAQPage"');
   });
 });
 

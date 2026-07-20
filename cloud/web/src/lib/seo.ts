@@ -31,18 +31,41 @@ const softwareApplication = {
   name: "BoundaryCI",
   applicationCategory: "DeveloperApplication",
   operatingSystem: "Windows, macOS, Linux",
-  description: "Tenant-isolation security scanner for Supabase and PostgreSQL SaaS applications.",
+  description: "Tenant-isolation security for Supabase and PostgreSQL with deterministic CI checks and optional managed AI review.",
   url: `${SITE_ORIGIN}/`,
   downloadUrl: "https://www.npmjs.com/package/boundaryci",
   codeRepository: "https://github.com/sir-gig/boundaryci",
   license: "https://opensource.org/license/mit",
   author: { "@id": `${SITE_ORIGIN}/#organization` },
+  featureList: [
+    "Deterministic Supabase and PostgreSQL migration checks",
+    "Optional managed Fireworks AI tenant review",
+    "Native GitHub pull-request annotations",
+    "Repository-bound Cloud evidence and history",
+  ],
   offers: [
     { "@type": "Offer", name: "Free", price: "0", priceCurrency: "USD" },
     { "@type": "Offer", name: "Team", price: "49", priceCurrency: "USD" },
     { "@type": "Offer", name: "Growth", price: "149", priceCurrency: "USD" },
   ],
 };
+
+function faqPageForRoute(route: PublicRouteMetadata): Record<string, unknown> | undefined {
+  if (!route.faqs?.length) return undefined;
+
+  return {
+    "@type": "FAQPage",
+    "@id": `${absoluteUrl(route.path)}#faq`,
+    mainEntity: route.faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
 
 function breadcrumbItems(route: PublicRouteMetadata) {
   const items = [
@@ -71,10 +94,12 @@ function breadcrumbItems(route: PublicRouteMetadata) {
 }
 
 export function structuredDataForRoute(route: PublicRouteMetadata): Record<string, unknown> {
+  const faqPage = faqPageForRoute(route);
+
   if (route.kind === "home") {
     return {
       "@context": "https://schema.org",
-      "@graph": [organization, website, softwareApplication],
+      "@graph": [organization, website, softwareApplication, ...(faqPage ? [faqPage] : [])],
     };
   }
 
@@ -97,6 +122,8 @@ export function structuredDataForRoute(route: PublicRouteMetadata): Record<strin
     about: { "@id": `${SITE_ORIGIN}/#software` },
   };
 
+  if (faqPage) page.hasPart = { "@id": `${pageUrl}#faq` };
+
   if (pageType === "TechArticle") {
     page.datePublished = route.publishedAt;
     page.dateModified = route.modifiedAt;
@@ -117,6 +144,7 @@ export function structuredDataForRoute(route: PublicRouteMetadata): Record<strin
         "@id": `${pageUrl}#breadcrumbs`,
         itemListElement: breadcrumbItems(route),
       },
+      ...(faqPage ? [faqPage] : []),
     ],
   };
 }

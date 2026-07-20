@@ -19,6 +19,7 @@ export function PublicNavigation({
 }) {
   const links = [
     { href: "/supabase-rls-scanner/", label: "Product" },
+    { href: "/ai-supabase-rls-review/", label: "AI Review" },
     { href: "/guides/tenant-isolation-testing/", label: "Guides" },
     { href: "/rules/", label: "Rules" },
     { href: "/security/", label: "Security" },
@@ -61,6 +62,7 @@ export function PublicFooter({ baseUrl }: { baseUrl: string }) {
           <b>Product</b>
           <a href={publicHref(baseUrl, "/supabase-rls-scanner/")}>Supabase scanner</a>
           <a href={publicHref(baseUrl, "/github-action/")}>GitHub Action</a>
+          <a href={publicHref(baseUrl, "/ai-supabase-rls-review/")}>AI Supabase review</a>
           <a href={publicHref(baseUrl, "/rules/")}>Rule reference</a>
         </section>
         <section>
