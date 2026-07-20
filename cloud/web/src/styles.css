@@ -121,7 +121,12 @@ input:focus, select:focus { border-color: #6855ce; box-shadow: 0 0 0 3px rgba(13
 /* Onboarding */
 .onboarding-shell { min-height: 100vh; background: radial-gradient(circle at 50% 35%, rgba(139,116,255,.09), transparent 32%), var(--bg); }
 .onboarding-shell > header { height: 78px; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; border-bottom: 1px solid var(--border); }
+.onboarding-account { display: flex; align-items: center; gap: 14px; }
+.onboarding-account span { color: #747c8e; font-size: 10px; }
 .onboarding-wrap { min-height: calc(100vh - 78px); display: grid; place-content: center; justify-items: center; gap: 30px; padding: 55px 24px 80px; }
+.workspace-load-error .onboarding-card { display: grid; gap: 18px; }
+.workspace-load-error .onboarding-card h1, .workspace-load-error .onboarding-card p, .workspace-load-error .onboarding-card .alert { margin: 0; }
+.workspace-load-error .button { width: max-content; }
 .progress-rail { display: flex; align-items: center; width: min(360px, 80vw); }
 .progress-rail span { flex: 0 0 30px; display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--border-bright); border-radius: 50%; color: var(--muted); background: var(--bg); font-family: var(--font-mono); font-size: 11px; }
 .progress-rail span.active { border-color: var(--purple); color: #fff; background: var(--purple); box-shadow: 0 0 0 5px var(--purple-soft); }

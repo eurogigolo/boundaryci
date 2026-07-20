@@ -31,6 +31,56 @@ interface RefreshOptions {
 
 type DashboardView = "overview" | "history" | "billing";
 
+function OnboardingHeader({
+  email,
+  onSignOut,
+}: {
+  email: string | undefined;
+  onSignOut: () => void;
+}) {
+  return (
+    <header>
+      <Brand />
+      <div className="onboarding-account">
+        {email && <span>Signed in as {email}</span>}
+        <button className="text-button" type="button" onClick={onSignOut}>Sign out</button>
+      </div>
+    </header>
+  );
+}
+
+export function WorkspaceLoadError({
+  email,
+  error,
+  onRetry,
+  onSignOut,
+}: {
+  email: string | undefined;
+  error: string;
+  onRetry: () => void;
+  onSignOut: () => void;
+}) {
+  return (
+    <div className="onboarding-shell">
+      <OnboardingHeader email={email} onSignOut={onSignOut} />
+      <section className="onboarding-wrap workspace-load-error">
+        <div className="onboarding-card">
+          <span className="eyebrow">Workspace unavailable</span>
+          <h1>We couldn&apos;t load your organization</h1>
+          <p className="muted">
+            BoundaryCI received an error while checking this account. Your workspace has not been
+            removed, and you should not create a replacement organization.
+          </p>
+          <div className="alert alert-error">{error}</div>
+          <button className="button button-primary" type="button" onClick={onRetry}>
+            Retry workspace loading
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function Dashboard({ session }: { session: Session }) {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null);
@@ -221,10 +271,21 @@ export function Dashboard({ session }: { session: Session }) {
     return <div className="full-loading"><Brand /><span>Loading your workspace…</span></div>;
   }
 
+  if (organizations.length === 0 && error) {
+    return (
+      <WorkspaceLoadError
+        email={session.user.email}
+        error={error}
+        onRetry={() => void loadOrganizations()}
+        onSignOut={() => void signOut()}
+      />
+    );
+  }
+
   if (organizations.length === 0) {
     return (
       <div className="onboarding-shell">
-        <header><Brand /><button className="text-button" onClick={() => void signOut()}>Sign out</button></header>
+        <OnboardingHeader email={session.user.email} onSignOut={() => void signOut()} />
         <OrganizationOnboarding onCreated={(id) => void loadOrganizations(id)} />
       </div>
     );
