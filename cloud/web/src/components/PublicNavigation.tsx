@@ -66,6 +66,7 @@ export function PublicFooter({ baseUrl }: { baseUrl: string }) {
         <section>
           <b>Resources</b>
           <a href={publicHref(baseUrl, "/docs/quickstart/")}>Quickstart</a>
+          <a href={publicHref(baseUrl, "/docs/managed-ai/")}>Managed AI review</a>
           <a href={publicHref(baseUrl, "/guides/tenant-isolation-testing/")}>Tenant-isolation guide</a>
           <a href={GITHUB_URL}>GitHub</a>
         </section>

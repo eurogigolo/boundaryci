@@ -68,10 +68,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: sir-gig/boundaryci@v0.2.0
+      - uses: sir-gig/boundaryci@v0.3.0
         with:
           target: .
           fail-on: high
+          managed-fireworks: "true"
           upload: "true"
           cloud-url: ${ingestEndpoint}
           cloud-token: \${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}

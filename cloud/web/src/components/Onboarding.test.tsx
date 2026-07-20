@@ -14,6 +14,8 @@ const organization: Organization = {
   current_period_start: null,
   current_period_end: null,
   cancel_at_period_end: false,
+  managed_ai_enabled: false,
+  managed_ai_consented_at: null,
 };
 
 describe("repository connection form", () => {

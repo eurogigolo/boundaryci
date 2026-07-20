@@ -169,25 +169,26 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
           <span className="eyebrow">Local-first by design</span>
           <h2>Your database credentials never belong in a scanner.</h2>
           <p>
-            Deterministic scans run inside your machine or GitHub runner. Cloud upload is explicit
-            and sends a minimized, secret-redacted result—not your full migration files or database password.
+            Deterministic scans run inside your machine or GitHub runner. Cloud history receives a
+            minimized, secret-redacted result. Paid teams can separately authorize managed AI review,
+            which forwards locally redacted migration text without storing it.
           </p>
           <ul>
             <li><i>✓</i><span><b>No database connection required</b>Analyze migrations without production access.</span></li>
             <li><i>✓</i><span><b>Cloud is opt-in</b>Local scans make no BoundaryCI network request.</span></li>
             <li><i>✓</i><span><b>Repository-bound tokens</b>Upload credentials cannot cross repository boundaries.</span></li>
-            <li><i>✓</i><span><b>Fireworks is optional</b>AI review is separate, explicit, and schema-constrained.</span></li>
+            <li><i>✓</i><span><b>Managed AI requires consent</b>Fireworks review activates only after an organization manager authorizes it.</span></li>
           </ul>
           <a className="launch-text-link" href={publicHref(baseUrl, "/security/")}>Read the security model →</a>
         </div>
         <div className="boundary-diagram" aria-label="Local-first BoundaryCI data flow">
           <div className="boundary-zone customer-zone">
             <span>Your environment</span>
-            <div className="diagram-node"><b>SQL migrations</b><small>Source remains local</small></div>
+            <div className="diagram-node"><b>SQL migrations</b><small>Local for deterministic scans</small></div>
             <div className="diagram-arrow">↓</div>
             <div className="diagram-node scanner-node"><b>BoundaryCI scanner</b><small>Deterministic analysis</small></div>
           </div>
-          <div className="diagram-boundary"><span>Explicit --upload only</span><i>→</i></div>
+          <div className="diagram-boundary"><span>Cloud history or consented AI</span><i>→</i></div>
           <div className="boundary-zone cloud-zone">
             <span>BoundaryCI Cloud</span>
             <div className="diagram-node"><b>Minimized finding</b><small>Evidence + remediation</small></div>
@@ -256,11 +257,11 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
           </details>
           <details>
             <summary>What does BoundaryCI Cloud receive?<span>+</span></summary>
-            <p>Only when you enable upload, Cloud receives repository and commit context, summary counts, finding metadata, and short redacted evidence and remediation snippets. It does not receive complete migration files.</p>
+            <p>Cloud history receives repository and commit context, summary counts, finding metadata, and short redacted evidence and remediation snippets. Complete migration files are excluded from history. If a paid organization separately enables managed AI, up to 80,000 characters of locally redacted migration text pass transiently through BoundaryCI to Fireworks and are not stored by BoundaryCI.</p>
           </details>
           <details>
             <summary>Is Fireworks AI required?<span>+</span></summary>
-            <p>No. Six deterministic checks work without an AI account and should remain the source of truth for merge decisions. Fireworks adds an optional semantic review for subtler policy interactions.</p>
+            <p>No. Six deterministic checks work without AI and remain the source of truth for merge decisions. Team, Growth, and Enterprise organizations can authorize BoundaryCI&apos;s managed Fireworks review without creating their own Fireworks account, then disable it by organization, repository, or workflow.</p>
           </details>
           <details>
             <summary>Does this replace a penetration test?<span>+</span></summary>

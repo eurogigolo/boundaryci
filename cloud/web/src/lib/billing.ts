@@ -40,7 +40,8 @@ export const BILLING_PLANS: BillingPlan[] = [
     features: [
       "1,000 Cloud scans per month",
       "Organization-wide security history",
-      "Fireworks AI finding storage",
+      "Managed Fireworks semantic review",
+      "AI finding history and evidence",
       "Self-service billing and invoices",
     ],
   },

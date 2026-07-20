@@ -6,7 +6,7 @@ import { runDeterministicRules } from "./rules.js";
 import { summarizeFindings } from "./report.js";
 import type { ScanReport, SqlFile } from "./types.js";
 
-export const version = "0.2.0";
+export const version = "0.3.0";
 
 function resolveDatabaseProfile(
   target: string,

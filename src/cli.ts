@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Command, Option } from "commander";
@@ -14,6 +15,7 @@ import { loadConfig, writeDefaultConfig } from "./config.js";
 import { discoverSqlFiles } from "./discover.js";
 import { prepareFindings, sortFindings } from "./findings.js";
 import { reviewWithFireworks } from "./fireworks.js";
+import { reviewWithManagedFireworks } from "./managed-fireworks.js";
 import {
   renderGithubReport,
   renderPrettyReport,
@@ -38,6 +40,7 @@ interface ScanCommandOptions {
   requireFireworks: boolean;
   fireworksModel?: string;
   includeAiInExitCode: boolean;
+  managedFireworks: boolean;
   upload: boolean;
   cloudUrl?: string;
   repository?: string;
@@ -102,6 +105,10 @@ program
     "Allow Fireworks findings to fail CI (disabled by default)",
     false,
   )
+  .option(
+    "--no-managed-fireworks",
+    "Skip BoundaryCI's managed Fireworks review when uploading to Cloud",
+  )
   .option("--upload", "Upload a minimized, secret-redacted report to BoundaryCI Cloud", false)
   .option("--cloud-url <url>", "BoundaryCI Cloud ingestion endpoint")
   .option("--repository <owner/name>", "Repository identity for Cloud history")
@@ -128,6 +135,22 @@ program
         );
       }
 
+      const cloudEndpoint = options.cloudUrl ?? process.env.BOUNDARYCI_CLOUD_URL;
+      const cloudToken = process.env.BOUNDARYCI_CLOUD_TOKEN;
+      const cloudRepository = options.repository ?? process.env.GITHUB_REPOSITORY;
+      if (options.upload) {
+        if (!cloudEndpoint) {
+          throw new Error("--upload requires --cloud-url or BOUNDARYCI_CLOUD_URL.");
+        }
+        if (!cloudToken) {
+          throw new Error("--upload requires the BOUNDARYCI_CLOUD_TOKEN environment variable.");
+        }
+        if (!cloudRepository) {
+          throw new Error("--upload requires --repository or GITHUB_REPOSITORY.");
+        }
+      }
+      const externalId = options.upload ? randomUUID() : undefined;
+
       const report = scanSqlFiles(target, files, config);
       if (config.fireworks.enabled) {
         try {
@@ -143,6 +166,35 @@ program
           const message = error instanceof Error ? error.message : String(error);
           report.semanticReview.status = "unavailable";
           report.warnings.push(`Fireworks semantic review did not run: ${message}`);
+        }
+      } else if (
+        options.upload &&
+        options.managedFireworks &&
+        cloudEndpoint &&
+        cloudToken &&
+        cloudRepository &&
+        externalId
+      ) {
+        try {
+          const semanticReview = await reviewWithManagedFireworks(files, config, {
+            cloudUrl: cloudEndpoint,
+            token: cloudToken,
+            repository: cloudRepository,
+            externalId,
+          });
+          if (semanticReview.status === "completed") {
+            report.findings.push(...prepareFindings(semanticReview.findings));
+            sortFindings(report.findings);
+            report.summary = summarizeFindings(report.findings);
+            report.semanticReview.status = "completed";
+            report.semanticReview.findings = semanticReview.findings.length;
+            report.semanticReview.model = semanticReview.model ?? config.fireworks.model;
+          }
+          report.warnings.push(...semanticReview.warnings);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          report.semanticReview.status = "unavailable";
+          report.warnings.push(`Managed Fireworks review did not run: ${message}`);
         }
       }
 
@@ -178,17 +230,8 @@ program
       }
 
       if (options.upload) {
-        const endpoint = options.cloudUrl ?? process.env.BOUNDARYCI_CLOUD_URL;
-        const token = process.env.BOUNDARYCI_CLOUD_TOKEN;
-        const repository = options.repository ?? process.env.GITHUB_REPOSITORY;
-        if (!endpoint) {
-          throw new Error("--upload requires --cloud-url or BOUNDARYCI_CLOUD_URL.");
-        }
-        if (!token) {
-          throw new Error("--upload requires the BOUNDARYCI_CLOUD_TOKEN environment variable.");
-        }
-        if (!repository) {
-          throw new Error("--upload requires --repository or GITHUB_REPOSITORY.");
+        if (!cloudEndpoint || !cloudToken || !cloudRepository || !externalId) {
+          throw new Error("BoundaryCI Cloud upload configuration is incomplete.");
         }
 
         const pullRequestText =
@@ -196,7 +239,7 @@ program
           process.env.GITHUB_REF?.match(/^refs\/pull\/(\d+)\//)?.[1];
         const pullRequest = pullRequestText === undefined ? null : Number(pullRequestText);
         const payload = createCloudScanPayload(report, {
-          repository,
+          repository: cloudRepository,
           commitSha: options.commit ?? process.env.GITHUB_SHA ?? null,
           branch:
             options.branch ??
@@ -206,8 +249,8 @@ program
           pullRequest,
           failOn: config.failOn,
           includeAiInExitCode: config.fireworks.includeInExitCode,
-        });
-        const uploaded = await uploadScanReport(endpoint, token, payload);
+        }, externalId);
+        const uploaded = await uploadScanReport(cloudEndpoint, cloudToken, payload);
         process.stderr.write(
           `BoundaryCI Cloud accepted scan ${uploaded.scanId}${uploaded.dashboardUrl ? ` - ${uploaded.dashboardUrl}` : ""}\n`,
         );

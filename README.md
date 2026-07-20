@@ -110,6 +110,20 @@ The integration requests schema-constrained JSON, validates every returned file 
 
 The default model is `accounts/fireworks/models/deepseek-v4-flash`. Override it with `--fireworks-model` or configuration if that model is unavailable to your account.
 
+### BoundaryCI managed Fireworks review
+
+Team, Growth, and Enterprise Cloud organizations can use BoundaryCI's managed Fireworks account instead of creating a provider key. An organization owner or administrator must first accept the managed-review disclosure in the dashboard. Each repository can then be disabled independently.
+
+When Cloud upload is enabled, the CLI first sends a metadata-only eligibility request authenticated by `BOUNDARYCI_CLOUD_TOKEN`. No migration text is included. Only after BoundaryCI confirms the paid plan, active subscription, organization authorization, and repository setting does the runner send locally redacted migration text to the managed endpoint. BoundaryCI forwards at most 80,000 characters to Fireworks, does not store the migration input, and returns validated findings for the local report and optional Cloud history.
+
+The managed review is requested by default by the Cloud Action workflow. Opt out for one workflow with:
+
+```yaml
+          managed-fireworks: "false"
+```
+
+Managed findings remain advisory by default, and deterministic scanning continues if the provider is unavailable. Direct `--fireworks` mode remains available for customers who prefer their own Fireworks account; BoundaryCI does not request both modes during one scan.
+
 ## Configuration
 
 Create a starter file:
@@ -156,7 +170,7 @@ npx boundaryci scan . --fail-on critical
 
 SARIF and GitHub output contain only `NEW` findings. Pretty and JSON output retain baseline and waived findings for auditability.
 
-This repository includes a published composite [`action.yml`](action.yml). Pin an exact release tag or commit SHA in production. `FIREWORKS_API_KEY` is only required when the `fireworks` input is `true`.
+This repository includes a published composite [`action.yml`](action.yml). Pin an exact release tag or commit SHA in production. `FIREWORKS_API_KEY` is required only for direct bring-your-own-key review when the `fireworks` input is `true`; managed review never exposes the Developer's provider key to GitHub.
 
 ```yaml
 name: Tenant isolation
@@ -167,7 +181,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: sir-gig/boundaryci@v0.2.0
+      - uses: sir-gig/boundaryci@v0.3.0
         with:
           target: .
           fail-on: high
@@ -188,16 +202,17 @@ npx.cmd boundaryci scan . --upload --repository owner/repository
 In GitHub Actions, repository, commit, branch, and pull-request metadata are detected automatically:
 
 ```yaml
-- uses: sir-gig/boundaryci@v0.2.0
+- uses: sir-gig/boundaryci@v0.3.0
   with:
     target: .
     fail-on: high
+    managed-fireworks: "true"
     upload: "true"
     cloud-url: ${{ secrets.BOUNDARYCI_CLOUD_URL }}
     cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}
 ```
 
-Cloud upload is disabled by default. The payload contains repository identity, commit context, summary counts, finding metadata, and short evidence/remediation snippets. BoundaryCI removes the absolute scan target and migration-file list, excludes local warnings, normalizes finding paths, and applies its common-secret redaction before upload. It does not upload complete migration files. Redaction is defense-in-depth, so teams must still decide whether findings may leave their environment.
+Cloud upload is disabled by default. The history payload contains repository identity, commit context, summary counts, finding metadata, and short evidence/remediation snippets. BoundaryCI removes the absolute scan target and migration-file list, excludes local warnings, normalizes finding paths, and applies its common-secret redaction before history upload. It does not include complete migration files. Managed AI review has the separate, consent-gated transient migration processing described above. Redaction is defense-in-depth, so teams must still decide whether either data path is appropriate.
 
 The deployable Supabase schema and ingestion Edge Function live in [`cloud/supabase`](cloud/supabase). The control plane binds every ingestion token to one repository, stores only SHA-256 token hashes, makes retries idempotent, enforces subscription status and monthly scan limits, and applies row-level security to every tenant-owned table. See [`cloud/README.md`](cloud/README.md) for its security model and deployment path.
 
@@ -213,13 +228,14 @@ SQL migrations
     │
     ├── deterministic parser and rules ──┐
     │                                    ├── fingerprints ── baseline / waivers
-    └── optional Fireworks review ───────┘
-                 advisory by default
+    ├── direct Fireworks review ─────────┤
+    └── consent-gated managed review ────┘
+                    advisory by default
                                            │
                                            └── pretty / JSON / SARIF / GitHub ── CI
 ```
 
-The CLI remains local-first: it does not need database credentials, and deterministic scans make no network requests. Fireworks review and Cloud upload are separate, explicit network features. The Cloud control plane can add organization-wide policy management, historical reporting, and active tenant-boundary tests without moving customer database credentials into a dashboard.
+The CLI remains local-first: it does not need database credentials, and deterministic scans make no network requests. Direct Fireworks, managed Fireworks, and Cloud history are separately controlled network features. The managed path performs a metadata-only authorization check before sending locally redacted migration text, and the control plane never needs customer database credentials.
 
 ## Development
 

@@ -2,6 +2,24 @@
 
 All notable changes to BoundaryCI are documented here.
 
+## 0.3.0 - 2026-07-19
+
+### Added
+
+- Consent-gated managed Fireworks review for Team, Growth, and Enterprise organizations.
+- Metadata-only eligibility checks before any migration text leaves the GitHub runner.
+- Server-side Fireworks credentials, fixed schema-constrained prompts, local and server-side
+  secret redaction, idempotent review reservations, concurrency protection, and plan quotas.
+- Organization consent controls plus per-repository and per-workflow opt-outs.
+- Public managed-AI documentation and permanent dashboard setup guidance.
+
+### Changed
+
+- Cloud-enabled Action runs request managed semantic review by default while keeping findings
+  advisory and deterministic scanning available during provider failures.
+- Privacy, security, support, subscription, and customer-facing data-flow language now covers
+  both managed and bring-your-own-key Fireworks modes.
+
 ## 0.2.0 - 2026-07-17
 
 ### Added

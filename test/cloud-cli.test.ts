@@ -9,11 +9,29 @@ describe("Cloud CLI integration", () => {
   it("scans locally and uploads the minimized report", async () => {
     let authorization = "";
     let receivedPayload: Record<string, unknown> | null = null;
+    let managedReviewPayload: Record<string, unknown> | null = null;
     const server = createServer(async (request, response) => {
       authorization = request.headers.authorization ?? "";
       const chunks: Buffer[] = [];
       for await (const chunk of request) chunks.push(Buffer.from(chunk));
-      receivedPayload = JSON.parse(Buffer.concat(chunks).toString("utf8")) as Record<string, unknown>;
+      const payload = JSON.parse(Buffer.concat(chunks).toString("utf8")) as Record<string, unknown>;
+      if (request.url?.endsWith("/managed-fireworks")) {
+        if (payload.operation === "status") {
+          response.writeHead(200, { "Content-Type": "application/json" });
+          response.end(JSON.stringify({ status: "enabled" }));
+          return;
+        }
+        managedReviewPayload = payload;
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({
+          status: "completed",
+          model: "accounts/fireworks/models/deepseek-v4-flash",
+          findings: [],
+          warnings: [],
+        }));
+        return;
+      }
+      receivedPayload = payload;
       response.writeHead(202, { "Content-Type": "application/json" });
       response.end(
         JSON.stringify({
@@ -40,7 +58,7 @@ describe("Cloud CLI integration", () => {
           "json",
           "--upload",
           "--cloud-url",
-          `http://127.0.0.1:${address.port}/v1/scans`,
+          `http://127.0.0.1:${address.port}/functions/v1/ingest-scan`,
           "--repository",
           "acme/billing",
           "--commit",
@@ -70,6 +88,11 @@ describe("Cloud CLI integration", () => {
       expect(JSON.parse(stdout)).toMatchObject({ schemaVersion: "1.0", findings: [] });
       expect(stderr).toContain("BoundaryCI Cloud accepted scan bc43d5e0");
       expect(authorization).toBe("Bearer bci_1234567890abcdefghijklmnop");
+      expect(managedReviewPayload).toMatchObject({
+        schemaVersion: "1.0",
+        repository: "acme/billing",
+      });
+      expect(JSON.stringify(managedReviewPayload)).not.toContain("service_role_key");
       expect(receivedPayload).toMatchObject({
         repository: "acme/billing",
         commitSha: "abc123",

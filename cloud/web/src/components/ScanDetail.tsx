@@ -53,6 +53,11 @@ export function ScanDetail({
           <p className="muted">
             {run.branch ?? "Local run"} · {formatDate(run.scanned_at)} · BoundaryCI {run.tool_version}
           </p>
+          {run.semantic_review.status === "completed" && (
+            <p className="managed-review-summary">
+              Managed Fireworks review completed · {run.semantic_review.findings} AI finding{run.semantic_review.findings === 1 ? "" : "s"} · {run.semantic_review.model}
+            </p>
+          )}
         </div>
         <span className={`outcome-pill ${run.outcome}`}>{run.outcome}</span>
       </div>
@@ -61,6 +66,7 @@ export function ScanDetail({
         <SummaryCount label="Critical" value={run.summary.critical} severity="critical" />
         <SummaryCount label="High" value={run.summary.high} severity="high" />
         <SummaryCount label="Medium" value={run.summary.medium} severity="medium" />
+        <SummaryCount label="AI review" value={run.summary.fireworks ?? 0} />
         <SummaryCount label="Baseline" value={run.summary.baseline} />
         <SummaryCount label="Waived" value={run.summary.waived} />
       </div>
@@ -89,6 +95,9 @@ export function ScanDetail({
                 <span className={`severity-pill ${finding.severity}`}>{finding.severity}</span>
                 <span className="rule-pill">{finding.rule_id}</span>
                 <span className={`disposition-pill ${finding.disposition}`}>{finding.disposition}</span>
+                <span className={`source-pill ${finding.source}`}>
+                  {finding.source === "fireworks" ? "Managed AI" : "Deterministic"}
+                </span>
               </div>
               <code className="fingerprint">{finding.fingerprint}</code>
             </div>

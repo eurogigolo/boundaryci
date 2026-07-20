@@ -75,6 +75,16 @@ export function RepositorySetupGuide({
         </li>
       </ol>
 
+      <div className="setup-managed-ai-note">
+        <b>Managed AI review</b>
+        <span>
+          The workflow requests BoundaryCI&apos;s managed Fireworks review automatically after an
+          organization owner or administrator accepts the dashboard disclosure. Your workflow
+          never receives the Fireworks API key. Set <code>managed-fireworks: &quot;false&quot;</code> in
+          the workflow or disable this repository in the dashboard to use deterministic checks only.
+        </span>
+      </div>
+
       <div className="setup-token-note">
         <b>Lost the token?</b>
         <span>{canManageToken

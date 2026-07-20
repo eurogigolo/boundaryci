@@ -2,7 +2,7 @@
 
 > BoundaryCI is a local-first tenant-isolation security scanner and paid Cloud history service for SaaS teams using Supabase and PostgreSQL.
 
-BoundaryCI detects authorization mistakes that can expose one SaaS customer's data to another customer. The open-source CLI reconstructs the final security state from ordered SQL migrations and applies deterministic checks for missing row-level security, unscoped authenticated policies, public access, and unsafe security-definer functions. An optional Fireworks AI review can identify subtler policy interactions.
+BoundaryCI detects authorization mistakes that can expose one SaaS customer's data to another customer. The open-source CLI reconstructs the final security state from ordered SQL migrations and applies deterministic checks for missing row-level security, unscoped authenticated policies, public access, and unsafe security-definer functions. Paid Cloud organizations can explicitly authorize a managed Fireworks AI review for subtler policy interactions without managing another provider key.
 
 The scanner runs locally or inside GitHub Actions without database credentials. BoundaryCI Cloud is opt-in and receives minimized, secret-redacted finding results rather than full migration files. Cloud provides repository-bound ingestion, scan history, finding evidence, subscription-aware usage, and team-wide visibility.
 
@@ -11,6 +11,7 @@ The scanner runs locally or inside GitHub Actions without database credentials. 
 - Public product page: https://boundaryci.com/
 - Supabase RLS scanner: https://boundaryci.com/supabase-rls-scanner/
 - BoundaryCI quickstart: https://boundaryci.com/docs/quickstart/
+- Managed Fireworks AI review: https://boundaryci.com/docs/managed-ai/
 - GitHub Action setup: https://boundaryci.com/github-action/
 - Security and data handling: https://boundaryci.com/security/
 - Documentation and source: https://github.com/sir-gig/boundaryci
@@ -42,7 +43,8 @@ The scanner runs locally or inside GitHub Actions without database credentials. 
 - Six deterministic Supabase/PostgreSQL security rules
 - Stable finding fingerprints, baselines, and expiring waivers
 - Terminal, JSON, SARIF, and GitHub annotation output
-- Optional schema-constrained Fireworks AI review
+- Consent-gated managed Fireworks AI review on paid plans
+- Optional direct Fireworks review with a customer-provided key
 - Free plan: 100 Cloud scans per month
 - Team: $49/month or $490/year for 1,000 Cloud scans per month
 - Growth: $149/month or $1,490/year for 10,000 Cloud scans per month

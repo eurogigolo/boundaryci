@@ -136,7 +136,7 @@ export function RepositoryConnectionForm({
             full_name: fullName.trim(),
             default_branch: defaultBranch.trim() || null,
           })
-          .select("id, organization_id, full_name, default_branch, active, created_at")
+          .select("id, organization_id, full_name, default_branch, active, managed_ai_enabled, created_at")
           .single();
         if (insertError) throw insertError;
         repository = data as Repository;
