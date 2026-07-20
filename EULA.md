@@ -27,7 +27,9 @@ Do not place production credentials, access tokens, personal data, or unnecessar
 
 ## 4. Optional third-party AI service
 
-BoundaryCI does not require Fireworks. If you enable the Fireworks review, migration text is redacted locally and then sent directly from your environment to Fireworks using your own API key and account. Fireworks' terms, privacy practices, availability, and charges apply to that processing. Secret redaction is defense-in-depth and cannot guarantee removal of every sensitive value.
+BoundaryCI does not require Fireworks. Eligible paid Cloud organizations can authorize a managed review in which migration text is redacted locally, sent through BoundaryCI without being stored as migration input, and processed by Fireworks under the Developer's managed account. Organization managers represent that they are authorized to make this choice for connected repositories. Managed review can be disabled at the organization, repository, or workflow level.
+
+The direct `--fireworks` option instead uses your own Fireworks API key and account. Fireworks' terms, privacy practices, availability, and applicable charges govern its processing in either mode. Secret redaction is defense-in-depth and cannot guarantee removal of every sensitive value.
 
 ## 5. Support and updates
 

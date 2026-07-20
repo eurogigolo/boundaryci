@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defaultConfig } from "../src/config.js";
-import { reviewWithFireworks } from "../src/fireworks.js";
+import { normalizeFireworksFindings, reviewWithFireworks } from "../src/fireworks.js";
 import type { SqlFile } from "../src/types.js";
 
 const originalApiKey = process.env.FIREWORKS_API_KEY;
@@ -71,6 +71,29 @@ describe("Fireworks semantic review", () => {
     await expect(reviewWithFireworks([], structuredClone(defaultConfig))).rejects.toThrow(
       "FIREWORKS_API_KEY",
     );
+  });
+
+  it("rejects type-coerced line numbers from provider output", () => {
+    const files: SqlFile[] = [{
+      path: "C:/repo/supabase/migrations/001.sql",
+      relativePath: "supabase/migrations/001.sql",
+      content: "select 1;",
+    }];
+    const normalized = normalizeFireworksFindings({
+      findings: [{
+        title: "Untrusted result",
+        description: "The line number is not an integer value.",
+        severity: "high",
+        confidence: "high",
+        file: "supabase/migrations/001.sql",
+        line: "1",
+        evidence: "A string should not pass the response validator.",
+        recommendation: "Discard the malformed finding.",
+        tags: ["tenant-isolation"],
+      }],
+    }, files);
+
+    expect(normalized).toEqual({ findings: [], discarded: 1 });
   });
 
   it("turns account suspension responses into a safe billing message", async () => {

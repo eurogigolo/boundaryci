@@ -18,6 +18,8 @@ Use the **AI finding feedback** issue template when a Fireworks finding appears 
 
 Do not open a public issue for a suspected vulnerability in BoundaryCI. Follow [SECURITY.md](SECURITY.md) and use GitHub's private vulnerability-reporting feature.
 
-## Fireworks account and billing
+## Fireworks review and account support
 
-The BoundaryCI developer cannot access or administer your Fireworks account. Contact Fireworks for account access, model availability, service incidents, billing, or its processing of submitted data.
+For BoundaryCI managed review, report product errors, consent or repository-setting problems, and missing findings through BoundaryCI support without sharing proprietary migrations. Fireworks provider availability can still affect managed review, while deterministic scans continue independently.
+
+For direct bring-your-own-key review, the BoundaryCI developer cannot access or administer your Fireworks account. Contact Fireworks for account access, model availability, service incidents, billing, or its processing under your account.

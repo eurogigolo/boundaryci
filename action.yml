@@ -15,11 +15,14 @@ inputs:
     description: Minimum deterministic severity that fails the action.
     default: high
   fireworks:
-    description: Set to true to run the optional Fireworks semantic review.
+    description: Set to true to run direct review with the customer's FIREWORKS_API_KEY.
     default: "false"
   require-fireworks:
-    description: Set to true to fail when the Fireworks review is unavailable.
+    description: Set to true to require direct bring-your-own-key Fireworks review.
     default: "false"
+  managed-fireworks:
+    description: Set to false to skip the consent-gated BoundaryCI managed Fireworks review.
+    default: "true"
   upload:
     description: Set to true to upload a minimized result to BoundaryCI Cloud.
     default: "false"
@@ -44,6 +47,7 @@ runs:
         BOUNDARYCI_FAIL_ON: ${{ inputs.fail-on }}
         BOUNDARYCI_FIREWORKS: ${{ inputs.fireworks }}
         BOUNDARYCI_REQUIRE_FIREWORKS: ${{ inputs.require-fireworks }}
+        BOUNDARYCI_MANAGED_FIREWORKS: ${{ inputs.managed-fireworks }}
         BOUNDARYCI_UPLOAD: ${{ inputs.upload }}
         BOUNDARYCI_CLOUD_URL: ${{ inputs.cloud-url }}
         BOUNDARYCI_CLOUD_TOKEN: ${{ inputs.cloud-token }}
@@ -51,5 +55,6 @@ runs:
         args=()
         if [[ "$BOUNDARYCI_FIREWORKS" == "true" ]]; then args+=(--fireworks); fi
         if [[ "$BOUNDARYCI_REQUIRE_FIREWORKS" == "true" ]]; then args+=(--require-fireworks); fi
+        if [[ "$BOUNDARYCI_MANAGED_FIREWORKS" == "false" ]]; then args+=(--no-managed-fireworks); fi
         if [[ "$BOUNDARYCI_UPLOAD" == "true" ]]; then args+=(--upload); fi
         node "${{ github.action_path }}/dist/cli.js" scan "$GITHUB_WORKSPACE/$BOUNDARYCI_TARGET" --profile "$BOUNDARYCI_PROFILE" --format github --fail-on "$BOUNDARYCI_FAIL_ON" "${args[@]}"

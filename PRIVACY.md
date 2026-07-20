@@ -10,15 +10,17 @@ BoundaryCI does not require an account with the Developer. Deterministic scans r
 
 ## Optional Fireworks review
 
-The Fireworks review is disabled by default. If you enable it, BoundaryCI redacts common secret patterns locally and sends migration text directly to Fireworks using the API key and account you provide. The response returns to your environment. The Developer does not receive that request or response.
+BoundaryCI supports managed and bring-your-own-key Fireworks review. Existing Cloud organizations remain deterministic-only until an owner or administrator of an eligible paid organization accepts the managed-review disclosure. Before sending migration text, the runner sends only repository identity to verify the plan, subscription, organization authorization, and repository setting. If enabled, BoundaryCI redacts common secret patterns locally and sends up to 80,000 characters of migration text through a BoundaryCI Edge Function to Fireworks under the Developer's managed account. BoundaryCI does not store that migration input. It can store the normalized findings, model and status information, input hash, and operational metadata needed for history, limits, retries, and abuse prevention.
 
-Fireworks acts under its own terms and privacy practices. You are responsible for deciding whether migration text may be sent to Fireworks and for configuring your Fireworks account appropriately. Do not enable the feature for material you are not authorized to submit.
+Managed review can be disabled for an organization, repository, or workflow. The direct `--fireworks` option remains available for customers using their own `FIREWORKS_API_KEY`; in that mode, the request goes directly from the customer environment to Fireworks and the Developer does not receive the direct request or response.
+
+Fireworks acts under its own terms and privacy practices. You are responsible for deciding whether migration text may be processed by Fireworks and for ensuring you are authorized to submit it. Secret redaction is defense-in-depth and cannot guarantee removal of every sensitive value.
 
 ## Optional BoundaryCI Cloud
 
 BoundaryCI Cloud upload is disabled by default. When enabled, the CLI sends repository identity, commit and pull-request context, scan timestamps, database-profile and AI-review status, summary counts, and finding details. Finding details include relative file paths, line numbers, classifications, short evidence snippets, remediation text, disposition, and any waiver metadata.
 
-Before upload, the CLI removes the absolute scan target and migration-file inventory, excludes local warning messages, normalizes finding paths, limits field sizes, and applies common token, JWT, password, secret, and API-key redaction. Complete migration files and database credentials are not part of the Cloud payload. Redaction cannot guarantee that every confidential value is removed. Do not enable Cloud upload unless you are authorized to send the resulting finding data.
+Before history upload, the CLI removes the absolute scan target and migration-file inventory, excludes local warning messages, normalizes finding paths, limits field sizes, and applies common token, JWT, password, secret, and API-key redaction. Complete migration files and database credentials are not part of the history payload. Managed AI review has the separate, transient migration-text processing described above. Redaction cannot guarantee that every confidential value is removed. Do not enable Cloud or managed review unless you are authorized to send the applicable data.
 
 Repository-bound ingestion tokens are used to authenticate uploads. BoundaryCI Cloud stores a SHA-256 hash rather than the plaintext token. Supabase hosts the public-beta control plane and processes the uploaded records on the Developer's behalf. Retention periods may be refined before general availability.
 

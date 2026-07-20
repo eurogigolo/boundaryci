@@ -407,7 +407,7 @@ const pages: PublicPage[] = [
         code: {
           label: ".github/workflows/tenant-isolation.yml",
           language: "yaml",
-          value: "name: Tenant isolation\non: [pull_request]\n\njobs:\n  boundaryci:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n      - uses: sir-gig/boundaryci@v0.2.0\n        with:\n          target: .\n          fail-on: high",
+          value: "name: Tenant isolation\non: [pull_request]\n\njobs:\n  boundaryci:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n      - uses: sir-gig/boundaryci@v0.3.0\n        with:\n          target: .\n          fail-on: high",
         },
       },
       {
@@ -440,8 +440,17 @@ const pages: PublicPage[] = [
         code: {
           label: "Cloud inputs inside the BoundaryCI Action step",
           language: "yaml",
-          value: "          upload: \"true\"\n          cloud-url: YOUR_BOUNDARYCI_INGEST_URL\n          cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}",
+          value: "          managed-fireworks: \"true\"\n          upload: \"true\"\n          cloud-url: YOUR_BOUNDARYCI_INGEST_URL\n          cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}",
         },
+      },
+      {
+        id: "managed-ai",
+        heading: "Authorize managed AI without another GitHub secret",
+        paragraphs: [
+          "Team, Growth, and Enterprise organization managers can accept the managed-AI disclosure in the BoundaryCI dashboard. After consent, the existing repository token requests Fireworks semantic review automatically; the Fireworks API key remains inside BoundaryCI's server environment and never enters GitHub.",
+          "Each repository starts enabled after organization consent. Disable it from the repository setting or set managed-fireworks to false in the workflow to keep that repository deterministic-only.",
+        ],
+        note: "The runner checks organization eligibility before transmitting migration text. If consent is absent, the subscription is ineligible, or the repository is disabled, no migration text is sent for managed review.",
       },
     ],
     related: [sharedRelated.quickstart, sharedRelated.rules, sharedRelated.security],
@@ -533,13 +542,108 @@ const pages: PublicPage[] = [
           "A failed BoundaryCI check can be the expected result: it means a new finding met the configured failure threshold. Correct the migration on the same branch and push again; the Action reruns automatically.",
         ],
       },
+      {
+        id: "managed-ai",
+        heading: "Choose whether to enable managed AI review",
+        paragraphs: [
+          "On Team, Growth, and Enterprise, an owner or administrator can review the dashboard disclosure and authorize managed Fireworks AI once for the organization. New repositories then request semantic review automatically with the same BoundaryCI repository token; customers do not need a Fireworks account or key.",
+          "BoundaryCI checks consent before the runner transmits migration content. When authorized, common secret patterns are redacted locally and up to 80,000 characters pass through BoundaryCI to Fireworks without being stored as migration text. Only normalized findings enter Cloud history.",
+        ],
+        code: {
+          label: "Per-workflow opt-out",
+          language: "yaml",
+          value: "          managed-fireworks: \"false\"",
+        },
+        note: "Managed AI findings are advisory unless includeInExitCode is explicitly enabled in boundaryci.config.json. Deterministic checks continue when the AI provider is unavailable.",
+      },
     ],
     related: [
       { href: "/github-action/", label: "GitHub Action setup", description: "Move the same scan into pull requests." },
       { href: "/supabase-rls-scanner/", label: "Supabase RLS scanner", description: "Review the Supabase-specific product scope." },
-      sharedRelated.rules,
+      { href: "/docs/managed-ai/", label: "Managed AI review", description: "Review consent, data flow, defaults, and opt-out controls." },
     ],
     ctaLabel: "Start scanning locally",
+  },
+  {
+    path: "/docs/managed-ai/",
+    kind: "documentation",
+    title: "Managed Fireworks AI Review | BoundaryCI Documentation",
+    description:
+      "Enable BoundaryCI managed Fireworks review, understand its consent and data flow, control repositories, and keep AI findings advisory.",
+    eyebrow: "Managed AI documentation",
+    heading: "Add semantic tenant review without managing another API key.",
+    introduction:
+      "Managed Fireworks review is an optional paid Cloud capability. BoundaryCI keeps its provider credential server-side, checks customer authorization before migration text leaves the runner, and returns schema-constrained findings to the existing report.",
+    publishedAt: BILLING_READINESS_DATE,
+    modifiedAt: BILLING_READINESS_DATE,
+    sections: [
+      {
+        id: "eligibility",
+        heading: "Start with an eligible Cloud organization",
+        paragraphs: [
+          "Managed review is included with Team, Growth, and Enterprise. Free organizations continue using the six deterministic checks and can still upload minimized findings to Cloud history.",
+          "Only an organization owner or administrator can authorize managed review. Existing organizations remain off until a manager accepts the disclosure.",
+        ],
+      },
+      {
+        id: "enable",
+        heading: "Authorize once in the dashboard",
+        paragraphs: [
+          "Open the BoundaryCI dashboard, locate Managed Fireworks AI, review the data-handling disclosure, select the authorization checkbox, and choose Enable managed AI review. The authorization time is recorded for the organization.",
+          "After organization consent, each active repository starts enabled. Repository switches let managers keep selected projects deterministic-only without disabling the organization-wide capability.",
+        ],
+      },
+      {
+        id: "workflow",
+        heading: "Use the generated workflow",
+        paragraphs: [
+          "The permanent Setup guide includes managed-fireworks set to true. No FIREWORKS_API_KEY secret is required: the runner uses its repository-bound BOUNDARYCI_CLOUD_TOKEN to check eligibility and request the fixed semantic review.",
+        ],
+        code: {
+          label: "BoundaryCI Action inputs",
+          language: "yaml",
+          value: "          managed-fireworks: \"true\"\n          upload: \"true\"\n          cloud-url: YOUR_BOUNDARYCI_INGEST_URL\n          cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}",
+        },
+      },
+      {
+        id: "data-flow",
+        heading: "Understand exactly what is transmitted",
+        paragraphs: [
+          "The runner first sends only repository identity to check the paid plan, subscription, organization consent, and repository setting. Migration text is not included in that eligibility request.",
+          "Only after an enabled response does the runner redact common token, JWT, password, secret, and API-key patterns and send up to 80,000 characters of migration text. BoundaryCI forwards that text to Fireworks and does not store the migration input. It stores the normalized review result, model, status, input hash, and bounded operational metadata; completed scan uploads also include the result in Cloud history.",
+        ],
+        note: "Secret redaction is defense in depth, not a guarantee. Do not put production credentials or unnecessary personal data in migration files.",
+      },
+      {
+        id: "decision",
+        heading: "Keep deterministic checks in control",
+        paragraphs: [
+          "Managed AI findings are advisory by default. Fireworks unavailability, rate limiting, or an invalid model response produces a warning while deterministic scanning and Cloud upload continue.",
+          "Teams can explicitly include AI findings in the exit decision through boundaryci.config.json, but should do so only after measuring the finding quality on their own repositories.",
+        ],
+      },
+      {
+        id: "disable",
+        heading: "Opt out at any layer",
+        paragraphs: [
+          "An owner or administrator can disable managed review for the organization or a single repository in the dashboard. A repository can also bypass it in workflow YAML. Local scans without Cloud upload never request managed review.",
+        ],
+        code: {
+          label: "Workflow opt-out",
+          language: "yaml",
+          value: "          managed-fireworks: \"false\"",
+        },
+      },
+      {
+        id: "byok",
+        heading: "Bring-your-own-key remains available",
+        paragraphs: [
+          "Advanced users can continue running boundaryci scan --fireworks with their own FIREWORKS_API_KEY. When that direct mode is selected, the request goes from the customer environment to Fireworks and BoundaryCI does not also request the managed review.",
+        ],
+      },
+    ],
+    related: [sharedRelated.quickstart, { href: "/github-action/", label: "GitHub Action setup", description: "Install the repository workflow and bound Cloud token." }, sharedRelated.security],
+    ctaLabel: "Enable managed AI review",
   },
   {
     path: "/rules/",
@@ -577,11 +681,11 @@ const pages: PublicPage[] = [
     kind: "security",
     title: "BoundaryCI Security and Data Handling",
     description:
-      "Understand BoundaryCI's local-first scanner, optional Fireworks review, minimized Cloud uploads, repository-bound tokens, and security limitations.",
+      "Understand BoundaryCI's local scanner, managed Fireworks review, minimized Cloud history, repository tokens, and security limitations.",
     eyebrow: "Security model",
     heading: "Migration scanning stays local unless you explicitly enable a network feature.",
     introduction:
-      "BoundaryCI separates deterministic scanning, optional Fireworks review, and optional Cloud history so teams can choose which data is allowed to leave their environment.",
+      "BoundaryCI separates deterministic scanning, managed or bring-your-own-key Fireworks review, and Cloud history so teams can control which data is allowed to leave their environment.",
     publishedAt: CONTENT_DATE,
     modifiedAt: CONTENT_DATE,
     sections: [
@@ -609,10 +713,13 @@ const pages: PublicPage[] = [
       },
       {
         id: "fireworks",
-        heading: "Fireworks semantic review is separate",
+        heading: "Managed Fireworks review requires authorization",
         paragraphs: [
-          "When --fireworks is enabled, migration text is sent under the customer's Fireworks account and data settings for schema-constrained review. The deterministic scan still completes if the optional review is unavailable unless --require-fireworks is selected.",
+          "Paid Cloud organizations remain deterministic-only until an owner or administrator accepts the managed-review disclosure. The runner checks plan, subscription, organization consent, and repository settings before it transmits migration text. No migration content is included in that eligibility check.",
+          "After authorization, the runner redacts common secret patterns and sends at most 80,000 characters through BoundaryCI to Fireworks. BoundaryCI does not store the migration input; normalized AI findings can be stored with Cloud history. Each repository and workflow has an opt-out.",
+          "Direct --fireworks mode remains available for customers who prefer their own Fireworks key and account. In either mode, deterministic scanning continues when the optional review is unavailable unless direct mode was explicitly marked required.",
         ],
+        note: "Redaction cannot guarantee removal of every sensitive value. Customers must not place production credentials or unnecessary personal data in migrations.",
       },
       {
         id: "limits",
@@ -650,6 +757,7 @@ const pages: PublicPage[] = [
         heading: "License and service scope",
         paragraphs: [
           "The BoundaryCI scanner is distributed under the MIT License. BoundaryCI Cloud adds hosted scan history, organization access, usage allowances, and optional paid subscription capacity.",
+          "Paid organizations can authorize a managed Fireworks semantic review. AI findings can be incomplete, incorrect, or misleading and remain advisory unless the customer explicitly includes them in the CI exit decision.",
           "BoundaryCI is an engineering aid for reviewing tenant-isolation controls. It is not a penetration test, security certification, legal or compliance opinion, managed security service, or guarantee that an application is secure.",
         ],
       },
@@ -682,6 +790,7 @@ const pages: PublicPage[] = [
         heading: "Customer responsibilities",
         paragraphs: [
           "Customers must use BoundaryCI only on code and systems they are authorized to assess, protect credentials and confidential material, and review findings before making security or production decisions.",
+          "A customer enabling managed AI represents that it is authorized to send the selected migration text for processing by BoundaryCI and Fireworks. Organization managers are responsible for communicating that choice to their repository teams and using the available organization, repository, or workflow opt-outs when appropriate.",
           "Do not submit production credentials, unnecessary personal data, or proprietary migrations through public support channels. Third-party services such as Supabase, Stripe, GitHub, npm, Cloudflare, and Fireworks operate under their own terms.",
         ],
       },
@@ -726,8 +835,8 @@ const pages: PublicPage[] = [
         id: "cloud-upload",
         heading: "Optional Cloud upload",
         paragraphs: [
-          "Cloud upload can include repository and commit context, scan timestamps, summary counts, finding classifications, relative paths, line numbers, short evidence, remediation, disposition, and waiver metadata.",
-          "The client excludes complete migration files, database credentials, absolute scan targets, and migration inventories. Common secret patterns are redacted, but redaction cannot guarantee removal of every confidential value.",
+          "The Cloud history upload can include repository and commit context, scan timestamps, summary counts, finding classifications, relative paths, line numbers, short evidence, remediation, disposition, and waiver metadata.",
+          "That history payload excludes complete migration files, database credentials, absolute scan targets, and migration inventories. Common secret patterns are redacted, but redaction cannot guarantee removal of every confidential value. Managed AI review, when separately authorized, has the transient processing described below.",
         ],
       },
       {
@@ -750,7 +859,9 @@ const pages: PublicPage[] = [
         id: "fireworks-and-support",
         heading: "Optional AI review and information customers submit",
         paragraphs: [
-          "When explicitly enabled, migration text is redacted locally and sent directly to Fireworks using the customer's API key and account. The Developer does not receive that request or response.",
+          "For managed review, an owner or administrator of an eligible paid organization must first accept the dashboard disclosure. The runner sends only repository identity to check eligibility. If enabled, it redacts common secret patterns locally and sends up to 80,000 characters of migration text through BoundaryCI to Fireworks under the Developer's managed account. BoundaryCI does not store that migration input; it can store the normalized findings, model, status, input hash, and operational metadata needed for history, limits, retries, and abuse prevention.",
+          "Managed review can be disabled for an organization, repository, or workflow. Existing organizations remain off until authorization. Direct bring-your-own-key review remains available; in that mode, migration text is sent from the customer environment directly to Fireworks under the customer's account and BoundaryCI does not receive that direct request or response.",
+          "Fireworks processes managed and direct inference under its own terms and privacy practices. Customers are responsible for ensuring they are authorized to submit the selected code. Secret redaction is defense in depth and cannot guarantee removal of every confidential value.",
           "Information voluntarily submitted through GitHub issues, pull requests, discussions, or vulnerability reports is processed to respond and maintain the product. Customers should remove credentials, personal data, and proprietary material before submission.",
         ],
       },

@@ -21,6 +21,8 @@ export interface Organization {
   current_period_start: string | null;
   current_period_end: string | null;
   cancel_at_period_end: boolean;
+  managed_ai_enabled: boolean;
+  managed_ai_consented_at: string | null;
 }
 
 export interface Repository {
@@ -29,6 +31,7 @@ export interface Repository {
   full_name: string;
   default_branch: string | null;
   active: boolean;
+  managed_ai_enabled: boolean;
   created_at: string;
 }
 
@@ -41,6 +44,8 @@ export interface ScanSummary {
   newFindings: number;
   baseline: number;
   waived: number;
+  deterministic?: number;
+  fireworks?: number;
 }
 
 export interface ScanRun {
@@ -53,6 +58,12 @@ export interface ScanRun {
   pull_request: number | null;
   outcome: "passed" | "failed";
   tool_version: string;
+  semantic_review: {
+    provider: "fireworks";
+    status: "not-requested" | "pending" | "completed" | "unavailable";
+    model: string;
+    findings: number;
+  };
   summary: ScanSummary;
   scanned_at: string;
   received_at: string;

@@ -9,6 +9,7 @@ import type { IngestionKeyResult, Organization, Repository, ScanRun } from "../t
 import { AddRepositoryDialog } from "./AddRepositoryDialog";
 import { Brand } from "./Brand";
 import { Billing } from "./Billing";
+import { ManagedAiSettings } from "./ManagedAiSettings";
 import { OrganizationOnboarding, RepositoryOnboarding } from "./Onboarding";
 import { RepositorySetupGuide } from "./RepositorySetupGuide";
 import { ScanDetail } from "./ScanDetail";
@@ -63,7 +64,7 @@ export function Dashboard({ session }: { session: Session }) {
     const { data, error: queryError } = await requireSupabase()
       .from("organizations")
       .select(
-        "id, name, slug, plan, subscription_status, monthly_scan_limit, billing_interval, current_period_start, current_period_end, cancel_at_period_end",
+        "id, name, slug, plan, subscription_status, monthly_scan_limit, billing_interval, current_period_start, current_period_end, cancel_at_period_end, managed_ai_enabled, managed_ai_consented_at",
       )
       .order("created_at", { ascending: true });
     if (queryError) {
@@ -97,13 +98,13 @@ export function Dashboard({ session }: { session: Session }) {
     const [repositoryResult, runResult, usageResult, findingResult, membershipResult] = await Promise.all([
       requireSupabase()
         .from("repositories")
-        .select("id, organization_id, full_name, default_branch, active, created_at")
+        .select("id, organization_id, full_name, default_branch, active, managed_ai_enabled, created_at")
         .eq("organization_id", organizationId)
         .order("created_at", { ascending: true }),
       requireSupabase()
         .from("scan_runs")
         .select(
-          "id, organization_id, repository_id, external_id, commit_sha, branch, pull_request, outcome, tool_version, summary, scanned_at, received_at",
+          "id, organization_id, repository_id, external_id, commit_sha, branch, pull_request, outcome, tool_version, semantic_review, summary, scanned_at, received_at",
         )
         .eq("organization_id", organizationId)
         .order("received_at", { ascending: false })
@@ -343,6 +344,17 @@ export function Dashboard({ session }: { session: Session }) {
                   <Metric label="Open findings" value={openFindings} note="new, not waived" icon="!" tone={openFindings > 0 ? "danger" : "positive"} />
                   <Metric label="Monthly usage" value={monthlyUsage} note={`${selectedOrganization.monthly_scan_limit || "Unlimited"} scan allowance`} icon="↗" />
                 </section>
+
+                <ManagedAiSettings
+                  organization={selectedOrganization}
+                  repositories={repositories}
+                  canManage={canManage}
+                  onViewPlans={() => setDashboardView("billing")}
+                  onRefresh={() => {
+                    void loadOrganizations(selectedOrganization.id, { background: true });
+                    void loadWorkspace(selectedOrganization.id, { background: true });
+                  }}
+                />
 
                 <section className="repository-section">
                   <div className="section-heading">

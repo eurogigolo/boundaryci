@@ -178,7 +178,25 @@ npx.cmd supabase secrets set --project-ref banbckoxtzptmrtsctki --env-file cloud
 The hosted billing functions read the new secrets without exposing them to the browser. Keep the
 test and live local files so sandbox testing does not overwrite production accidentally.
 
-## 6. Live smoke test
+## 6. Managed Fireworks review
+
+Keep the provider key out of GitHub Actions, Vite, the repository, chat, and shell history.
+
+1. Copy `cloud/supabase/fireworks-secrets.example` to the ignored file
+   `cloud/supabase/.env.fireworks.local` and replace only the placeholder key.
+2. Upload it with `npx.cmd supabase secrets set --project-ref banbckoxtzptmrtsctki
+   --env-file cloud/supabase/.env.fireworks.local`.
+3. Apply the managed-review migration, then deploy `managed-fireworks` with
+   `--no-verify-jwt`; the function authenticates repository-bound BoundaryCI tokens itself.
+4. In the dashboard, review and accept the disclosure for one paid organization. Confirm a
+   metadata-only eligibility request occurs before any migration input is sent.
+5. Run one test repository, verify an AI finding or completed zero-finding review appears, and
+   then confirm the repository and organization opt-outs prevent migration transmission.
+
+Do not enable managed review for customers until the key, migration, function, disclosure, plan
+gate, quotas, and both opt-out paths have all been verified together.
+
+## 7. Live smoke test
 
 1. Sign in to BoundaryCI and confirm the organization is back on Free.
 2. Buy the Team monthly plan with a real card. This creates a real $49 charge.

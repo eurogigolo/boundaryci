@@ -18,6 +18,7 @@ describe("repository GitHub setup guide", () => {
     expect(markup).toContain(".github/workflows/boundaryci.yml");
     expect(markup).toContain("secrets.BOUNDARYCI_CLOUD_TOKEN");
     expect(markup).toContain(endpoint);
+    expect(markup).toContain('managed-fireworks: &quot;true&quot;');
     expect(markup).not.toContain("bci_");
   });
 
@@ -26,6 +27,8 @@ describe("repository GitHub setup guide", () => {
     expect(markup).toContain("high-severity regression fails the check");
     expect(markup).toContain("Lost the token?");
     expect(markup).toContain("leave this workflow unchanged");
+    expect(markup).toContain("never receives the Fireworks API key");
+    expect(markup).toContain('managed-fireworks: &quot;false&quot;');
   });
 
   it("directs read-only members to an organization manager for replacement tokens", () => {

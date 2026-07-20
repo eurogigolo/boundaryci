@@ -2,12 +2,13 @@
 
 This directory is the paid BoundaryCI Cloud product: organization and repository setup, repository-bound ingestion keys, durable scan history, tenant-safe reads, Stripe subscriptions, and subscription-aware usage limits.
 
-The scanner remains local. Cloud receives a minimized result only when a customer enables `--upload`; it never needs the customer's database credentials or full migration files.
+The scanner and deterministic rules remain local. Cloud history receives a minimized result when a customer enables `--upload`; it never needs customer database credentials or complete migration files. Separately authorized managed AI review can transiently forward locally redacted migration text through BoundaryCI to Fireworks without storing that migration input.
 
 ## Components
 
 - `supabase/migrations/20260718000000_cloud_control_plane.sql` creates organizations, memberships, repositories, hashed ingestion keys, scan runs, findings, indexes, row-level security, onboarding RPCs, and the atomic ingestion RPC.
 - `supabase/functions/ingest-scan/index.ts` is the public HTTP boundary. It hashes the bearer token, delegates all authorization and writes to one database transaction, and returns only a scan identifier.
+- `supabase/functions/managed-fireworks/index.ts` performs a metadata-only eligibility check before accepting redacted migration input, reserves a bounded review, calls Fireworks with a server-only key and fixed schema, and returns validated findings without storing migration text.
 - `supabase/functions/create-checkout/index.ts` creates organization-owned Stripe Checkout sessions for owners and administrators.
 - `supabase/functions/create-portal/index.ts` creates short-lived Stripe customer portal sessions for authorized organization managers.
 - `supabase/functions/stripe-webhook/index.ts` verifies Stripe signatures and atomically synchronizes idempotent subscription events.
@@ -26,6 +27,9 @@ The scanner remains local. Cloud receives a minimized result only when a custome
 - The ingestion-key table has an explicit deny-all client policy and no authenticated table grants.
 - Organization administrators cannot edit plan, subscription, quota, or Stripe fields through client credentials.
 - Ingestion stops when a subscription is inactive or its monthly scan allowance is exhausted.
+- Managed AI remains disabled until an eligible paid organization owner or administrator records consent. Repository settings and workflow inputs provide narrower opt-outs.
+- The CLI performs an eligibility request containing no migration text before it sends managed-review input. The database rechecks authorization during reservation, applies monthly and concurrency limits, and makes completed requests idempotent by repository and external scan ID.
+- The Fireworks key is an Edge Function secret. It is never returned to the CLI, browser, repository token holder, or dashboard.
 - The Edge Function limits request size and does not expose unexpected database errors.
 - Stripe price IDs are mapped to BoundaryCI plans on the server. The browser and webhook metadata cannot grant a plan or quota.
 - Stripe webhook event IDs are recorded in the same database transaction as the subscription update, so retries are safe.
@@ -39,10 +43,21 @@ Create and link a Supabase project, then apply the migration and deploy the func
 supabase link --project-ref YOUR_PROJECT_REF
 supabase db push
 supabase functions deploy ingest-scan --no-verify-jwt
+supabase functions deploy managed-fireworks --no-verify-jwt
 supabase secrets set BOUNDARYCI_APP_URL=https://boundaryci.com
 ```
 
-JWT verification is disabled only at the Edge gateway because uploads use a repository-bound BoundaryCI token instead of a Supabase user JWT. The function authenticates that token through the database RPC. `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are supplied to hosted Supabase Edge Functions; never expose the service-role key to the CLI, browser, or GitHub workflow.
+JWT verification is disabled only at the Edge gateway for `ingest-scan` and `managed-fireworks` because both use a repository-bound BoundaryCI token instead of a Supabase user JWT. Each function authenticates that token through a service-only database RPC. `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are supplied to hosted Supabase Edge Functions; never expose the service-role or Fireworks key to the CLI, browser, or GitHub workflow.
+
+Configure the managed provider key from a local ignored file rather than putting it in shell history:
+
+```powershell
+Copy-Item cloud\supabase\fireworks-secrets.example cloud\supabase\.env.fireworks.local
+notepad cloud\supabase\.env.fireworks.local
+npx.cmd supabase secrets set --project-ref YOUR_PROJECT_REF --env-file cloud/supabase/.env.fireworks.local
+```
+
+The default model is `accounts/fireworks/models/deepseek-v4-flash`. `FIREWORKS_MODEL` can override it server-side without changing customer workflows.
 
 ## Onboard an organization
 
@@ -52,6 +67,7 @@ The dashboard performs these calls with the signed-in user's Supabase JWT:
 2. Insert a `repositories` row for a GitHub `owner/repository`. Row-level security requires an owner or administrator.
 3. Call `create_ingestion_key(repository_id, name)`. Display the returned plaintext token once and instruct the user to save it as the GitHub secret `BOUNDARYCI_CLOUD_TOKEN`.
 4. Store the Edge Function URL as `BOUNDARYCI_CLOUD_URL` and enable the Action's `upload` input.
+5. On an eligible paid plan, an owner or administrator can accept the managed-AI disclosure. New repositories default to managed review after that consent; each repository and workflow can opt out.
 
 Billing webhooks must use a server-side service credential to update `plan`, `subscription_status`, `monthly_scan_limit`, and the Stripe identifiers. Those columns are deliberately not writable by authenticated browser clients. A limit of `0` means unlimited scans and should be reserved for contracted Enterprise accounts.
 
@@ -149,6 +165,7 @@ The authenticated dashboard now uses these read models:
 - scan page: finding evidence, recommendation, and disposition;
 - onboarding: organization, repository, and one-time ingestion-token creation;
 - plan usage is visible.
+- managed AI consent, organization status, and per-repository opt-outs are visible to organization members and editable only by owners and administrators;
 - owners and administrators can purchase Team or Growth monthly/annual plans;
 - subscription, renewal, cancellation, and payment-problem states are webhook-driven;
 - customers manage payment methods, invoices, plan changes, and cancellation in Stripe's hosted portal.

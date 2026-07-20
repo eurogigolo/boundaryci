@@ -26,6 +26,7 @@ describe("Cloud presentation helpers", () => {
     expect(yaml).toContain("BOUNDARYCI_CLOUD_TOKEN");
     expect(yaml).toContain("https://example.supabase.co/functions/v1/ingest-scan");
     expect(yaml).toContain("permissions:\n  contents: read");
+    expect(yaml).toContain('managed-fireworks: "true"');
     expect(yaml).not.toContain("bci_");
     expect(GITHUB_ACTION_SECRET_NAME).toBe("BOUNDARYCI_CLOUD_TOKEN");
     expect(GITHUB_WORKFLOW_PATH).toBe(".github/workflows/boundaryci.yml");

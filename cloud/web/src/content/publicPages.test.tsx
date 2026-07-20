@@ -14,7 +14,7 @@ import { structuredDataForRoute } from "../lib/seo";
 
 describe("public discovery pages", () => {
   it("defines a unique, descriptive route for every indexable page", () => {
-    expect(PUBLIC_ROUTES).toHaveLength(18);
+    expect(PUBLIC_ROUTES).toHaveLength(19);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.path)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.title)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.description)).size).toBe(PUBLIC_ROUTES.length);
@@ -110,6 +110,11 @@ describe("public discovery pages", () => {
     const action = renderPublicRoute("/github-action/", "/");
     expect(action).toContain("Store the token as a GitHub secret");
     expect(action).toContain("Reference the secret from the workflow");
+
+    const managedAi = renderPublicRoute("/docs/managed-ai/", "/");
+    expect(managedAi).toContain("Authorize once in the dashboard");
+    expect(managedAi).toContain("Migration text is not included");
+    expect(managedAi).toContain("managed-fireworks: &quot;false&quot;");
   });
 });
 

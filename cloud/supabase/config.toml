@@ -1,6 +1,9 @@
 [functions.ingest-scan]
 verify_jwt = false
 
+[functions.managed-fireworks]
+verify_jwt = false
+
 [functions.create-checkout]
 verify_jwt = false
 
