@@ -20,11 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: sir-gig/boundaryci@v0.2.0
+      - uses: sir-gig/boundaryci@v0.3.0
         with:
           target: cloud/supabase
           profile: supabase
           fail-on: high
+          managed-fireworks: "true"
           upload: "true"
           cloud-url: https://banbckoxtzptmrtsctki.supabase.co/functions/v1/ingest-scan
           cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}
