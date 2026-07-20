@@ -552,9 +552,7 @@ Deno.serve(async (request) => {
         model,
         temperature: 0,
         max_tokens: 8_192,
-        ...(model.includes("deepseek-v4")
-          ? { reasoning_effort: "none" }
-          : {}),
+        ...(model.includes("deepseek-v4") ? { reasoning_effort: "none" } : {}),
         response_format: { type: "json_schema", json_schema: responseSchema },
         messages: [
           {
