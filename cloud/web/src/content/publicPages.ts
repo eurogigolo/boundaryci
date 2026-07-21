@@ -500,7 +500,7 @@ const pages: PublicPage[] = [
         code: {
           label: ".github/workflows/tenant-isolation.yml",
           language: "yaml",
-          value: "name: Tenant isolation\non: [pull_request]\n\njobs:\n  boundaryci:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n      - uses: sir-gig/boundaryci@v0.3.0\n        with:\n          target: .\n          fail-on: high",
+          value: "name: Tenant isolation\non: [pull_request]\n\njobs:\n  boundaryci:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v7\n      - uses: sir-gig/boundaryci@v0.4.0\n        with:\n          target: .\n          fail-on: high",
         },
       },
       {
@@ -933,7 +933,7 @@ const pages: PublicPage[] = [
         code: {
           label: "BoundaryCI GitHub Action",
           language: "yaml",
-          value: "- uses: sir-gig/boundaryci@v0.3.0\n  with:\n    target: .\n    fail-on: high\n    managed-fireworks: \"true\"\n    upload: \"true\"\n    cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}",
+          value: "- uses: sir-gig/boundaryci@v0.4.0\n  with:\n    target: .\n    fail-on: high\n    managed-fireworks: \"true\"\n    upload: \"true\"\n    cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}",
         },
       },
       {

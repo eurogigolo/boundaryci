@@ -104,7 +104,7 @@ An organization owner or administrator must first accept the managed-review disc
 The dashboard-generated GitHub Action workflow contains the public ingestion endpoint and references only the repository-bound BoundaryCI token:
 
 ```yaml
-- uses: sir-gig/boundaryci@v0.3.0
+- uses: sir-gig/boundaryci@v0.4.0
   with:
     target: .
     fail-on: high
@@ -214,7 +214,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: sir-gig/boundaryci@v0.3.0
+      - uses: sir-gig/boundaryci@v0.4.0
         with:
           target: .
           fail-on: high
@@ -235,7 +235,7 @@ npx.cmd boundaryci scan . --upload --repository owner/repository
 In GitHub Actions, repository, commit, branch, and pull-request metadata are detected automatically:
 
 ```yaml
-- uses: sir-gig/boundaryci@v0.3.0
+- uses: sir-gig/boundaryci@v0.4.0
   with:
     target: .
     fail-on: high
