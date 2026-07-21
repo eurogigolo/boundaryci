@@ -13,6 +13,7 @@ The scanner and deterministic rules remain local. Cloud history receives a minim
 - `supabase/functions/create-portal/index.ts` creates short-lived Stripe customer portal sessions for authorized organization managers.
 - `supabase/functions/stripe-webhook/index.ts` verifies Stripe signatures and atomically synchronizes idempotent subscription events.
 - `supabase/migrations/20260718010000_stripe_billing.sql` adds the Stripe billing state, event ledger, expanded subscription statuses, and server-only subscription synchronization RPC.
+- `supabase/migrations/20260721000000_finding_dismissals.sql` adds repository-scoped finding visibility preferences, tenant-safe owner/admin controls, and the visible-findings read model.
 - `../src/cloud.ts` is the CLI payload minimizer and HTTPS upload client.
 - `web` is the React dashboard for authentication, organization/repository onboarding,
   one-time token creation, plan usage, scan history, and finding detail.
@@ -24,6 +25,7 @@ The scanner and deterministic rules remain local. Cloud history receives a minim
 - The database verifies that the payload's `owner/repository` matches the key.
 - Duplicate `externalId` values return the original run, making retries idempotent.
 - Organization members can read only organizations, repositories, runs, and findings for organizations they belong to.
+- Finding dismissals preserve the original scan evidence, are editable only by organization owners and administrators, and apply only within the finding's repository.
 - The ingestion-key table has an explicit deny-all client policy and no authenticated table grants.
 - Organization administrators cannot edit plan, subscription, quota, or Stripe fields through client credentials.
 - Ingestion stops when a subscription is inactive or its monthly scan allowance is exhausted.
@@ -162,7 +164,7 @@ The authenticated dashboard now uses these read models:
 
 - organization overview: newest runs, pass rate, and new findings by severity;
 - repository page: run history by commit and branch;
-- scan page: finding evidence, recommendation, and disposition;
+- scan page: finding evidence, recommendation, disposition, and persistent owner/admin visibility controls;
 - onboarding: organization, repository, and one-time ingestion-token creation;
 - plan usage is visible.
 - managed AI consent, organization status, and per-repository opt-outs are visible to organization members and editable only by owners and administrators;

@@ -1,6 +1,7 @@
 export const SITE_ORIGIN = "https://boundaryci.com";
 export const CONTENT_DATE = "2026-07-18";
 export const BILLING_READINESS_DATE = "2026-07-19";
+const FINDING_VISIBILITY_DATE = "2026-07-20";
 export const AI_MARKETING_DATE = "2026-07-20";
 
 export type PublicPageKind =
@@ -1249,7 +1250,7 @@ const pages: PublicPage[] = [
     introduction:
       "BoundaryCI is local-first. Network processing occurs only when a customer enables an optional integration, uses BoundaryCI Cloud, authenticates, requests support, or purchases a subscription.",
     publishedAt: "2026-07-17",
-    modifiedAt: BILLING_READINESS_DATE,
+    modifiedAt: FINDING_VISIBILITY_DATE,
     sections: [
       {
         id: "local-scans",
@@ -1271,7 +1272,7 @@ const pages: PublicPage[] = [
         id: "accounts-and-security",
         heading: "Accounts, authentication, and abuse protection",
         paragraphs: [
-          "Supabase processes authentication records and hosts organization, repository, usage, finding, and subscription state. Repository ingestion tokens are stored as SHA-256 hashes rather than plaintext.",
+          "Supabase processes authentication records and hosts organization, repository, usage, finding, finding-visibility preferences, and subscription state. Repository ingestion tokens are stored as SHA-256 hashes rather than plaintext.",
           "Cloudflare Turnstile processes browser and request signals needed to challenge automated authentication attempts. Its public site key is browser-visible; its verification secret remains server-side in Supabase.",
         ],
       },

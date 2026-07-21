@@ -96,7 +96,9 @@ describe("public discovery pages", () => {
     expect(terms).toContain("Cancellation and refunds");
     expect(terms).not.toContain("Make tenant isolation a release gate");
 
-    expect(renderPublicRoute("/privacy/", "/")).toContain("Optional Cloud upload");
+    const privacy = renderPublicRoute("/privacy/", "/");
+    expect(privacy).toContain("Optional Cloud upload");
+    expect(privacy).toContain("finding-visibility preferences");
     expect(renderPublicRoute("/support/", "/")).toContain("Billing and subscription help");
   });
 
