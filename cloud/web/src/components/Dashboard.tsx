@@ -165,7 +165,7 @@ export function Dashboard({ session }: { session: Session }) {
         .eq("organization_id", organizationId)
         .gte("received_at", monthStart.toISOString()),
       requireSupabase()
-        .from("scan_findings")
+        .from("visible_scan_findings")
         .select("id", { count: "exact", head: true })
         .eq("organization_id", organizationId)
         .eq("disposition", "new"),
@@ -370,7 +370,11 @@ export function Dashboard({ session }: { session: Session }) {
           <ScanDetail
             run={selectedScan.run}
             repository={selectedScan.repository}
+            canManage={canManage}
             onBack={() => setSelectedScan(null)}
+            onVisibilityChange={() => {
+              void loadWorkspace(selectedOrganization.id, { background: true });
+            }}
           />
         ) : (
           <div className="content-page">
