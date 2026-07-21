@@ -96,26 +96,81 @@ export interface PolicyDefinition {
   statement: string;
 }
 
-export interface TableDefinition {
+export type ApiRole = "public" | "anon" | "authenticated";
+export type RelationPrivilege =
+  | "select"
+  | "insert"
+  | "update"
+  | "delete"
+  | "truncate"
+  | "references"
+  | "trigger";
+
+export interface ApiPrivilegeDefinition {
+  role: ApiRole;
+  privileges: RelationPrivilege[];
+}
+
+export interface PrivilegeSource {
+  file: string;
+  line: number;
+  statement: string;
+}
+
+export interface BaseRelationDefinition {
   key: string;
   schema: string;
   name: string;
   declared: boolean;
-  rlsEnabled: boolean;
-  rlsForced: boolean;
+  apiPrivileges: ApiPrivilegeDefinition[];
+  apiPrivilegeSources: Partial<
+    Record<ApiRole, Partial<Record<RelationPrivilege, PrivilegeSource>>>
+  >;
   file: string;
   line: number;
   statement: string;
+}
+
+export interface TableDefinition extends BaseRelationDefinition {
+  kind: "table";
+  rlsEnabled: boolean;
+  rlsForced: boolean;
   policies: PolicyDefinition[];
 }
 
+export interface ViewDefinition extends BaseRelationDefinition {
+  kind: "view";
+  securityInvoker: boolean;
+}
+
+export interface ApiRelationDefinition extends BaseRelationDefinition {
+  kind: "materialized-view" | "foreign-table";
+}
+
+export type RelationDefinition = TableDefinition | ViewDefinition | ApiRelationDefinition;
+
 export interface FunctionDefinition {
   key: string;
+  signature: string;
+  identityKey: string;
   schema: string;
   name: string;
   securityDefiner: boolean;
   hasPinnedSearchPath: boolean;
-  publicExecuteRevoked: boolean;
+  executeRoles: ApiRole[];
+  executePrivilegeSources: Partial<Record<ApiRole, PrivilegeSource>>;
+  file: string;
+  line: number;
+  statement: string;
+}
+
+export interface DefaultPrivilegeDefinition {
+  owner?: string;
+  schema?: string;
+  objectType: "tables" | "functions";
+  role: ApiRole;
+  privileges: string[];
+  privilegeSources: Record<string, PrivilegeSource>;
   file: string;
   line: number;
   statement: string;
@@ -123,5 +178,10 @@ export interface FunctionDefinition {
 
 export interface SqlInventory {
   tables: Map<string, TableDefinition>;
+  views: ViewDefinition[];
+  materializedViews: ApiRelationDefinition[];
+  foreignTables: ApiRelationDefinition[];
+  relations: RelationDefinition[];
   functions: FunctionDefinition[];
+  defaultPrivileges: DefaultPrivilegeDefinition[];
 }

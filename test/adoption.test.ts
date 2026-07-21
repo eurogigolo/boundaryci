@@ -39,7 +39,7 @@ describe("adoption controls", () => {
     const fullyBaselined = await vulnerableReport();
     applyAdoptionDocuments(fullyBaselined, baseline, undefined);
 
-    expect(fullyBaselined.summary).toMatchObject({ newFindings: 0, baseline: 6, waived: 0 });
+    expect(fullyBaselined.summary).toMatchObject({ newFindings: 0, baseline: 12, waived: 0 });
     expect(shouldFail(fullyBaselined, "high", false)).toBe(false);
     const sarif = toSarif(fullyBaselined) as { runs: Array<{ results: unknown[] }> };
     expect(sarif.runs[0]?.results).toEqual([]);
@@ -47,7 +47,7 @@ describe("adoption controls", () => {
     const partialBaseline = { ...baseline, findings: baseline.findings.slice(1) };
     const oneNew = await vulnerableReport();
     applyAdoptionDocuments(oneNew, partialBaseline, undefined);
-    expect(oneNew.summary).toMatchObject({ newFindings: 1, baseline: 5 });
+    expect(oneNew.summary).toMatchObject({ newFindings: 1, baseline: 11 });
     expect(shouldFail(oneNew, "high", false)).toBe(true);
   });
 

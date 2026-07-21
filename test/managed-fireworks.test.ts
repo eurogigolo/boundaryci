@@ -39,13 +39,13 @@ describe("managed Fireworks review", () => {
         findings: [
           {
             title: "Tenant reassignment is possible",
-            description: "The update policy checks only the old row.",
+            description: "The proposed-row predicate is broader than the existing-row tenant check.",
             severity: "high",
             confidence: "high",
             file: "supabase/migrations/001.sql",
             line: 2,
-            evidence: "No tenant-scoped WITH CHECK is present.",
-            recommendation: "Add a tenant-scoped WITH CHECK predicate.",
+            evidence: "WITH CHECK (true) permits tenant_id reassignment.",
+            recommendation: "Replace WITH CHECK (true) with the tenant membership predicate.",
             tags: ["rls", "tenant-isolation"],
           },
         ],

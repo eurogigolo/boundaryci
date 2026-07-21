@@ -90,7 +90,7 @@ export function PublicDocumentPage({
               <>
                 <time dateTime={page.modifiedAt}>Updated {displayDate(page.modifiedAt)}</time>
                 <span aria-hidden="true">·</span>
-                <span>Reviewed against BoundaryCI v0.3</span>
+                <span>Reviewed against BoundaryCI v0.4</span>
               </>
             )}
           </div>

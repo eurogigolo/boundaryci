@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0",
+  "createdAt": "2026-07-21T00:20:07.478Z",
+  "findings": [
+    {
+      "fingerprint": "7f1a017e976b839561efd8ad",
+      "ruleId": "BND012",
+      "source": "deterministic",
+      "file": "migrations/20260718000000_cloud_control_plane.sql",
+      "title": "SECURITY DEFINER function is executable by API roles"
+    },
+    {
+      "fingerprint": "5ad3fef492f846085bd157b6",
+      "ruleId": "BND012",
+      "source": "deterministic",
+      "file": "migrations/20260718000000_cloud_control_plane.sql",
+      "title": "SECURITY DEFINER function is executable by API roles"
+    },
+    {
+      "fingerprint": "07bc93aced8bf1ecaa6f9bb5",
+      "ruleId": "BND012",
+      "source": "deterministic",
+      "file": "migrations/20260718000000_cloud_control_plane.sql",
+      "title": "SECURITY DEFINER function is executable by API roles"
+    },
+    {
+      "fingerprint": "c1d680b96a199a0b8a54e009",
+      "ruleId": "BND012",
+      "source": "deterministic",
+      "file": "migrations/20260718000000_cloud_control_plane.sql",
+      "title": "SECURITY DEFINER function is executable by API roles"
+    },
+    {
+      "fingerprint": "b0e7739bb5b11fdb7bb6064d",
+      "ruleId": "BND012",
+      "source": "deterministic",
+      "file": "migrations/20260718000000_cloud_control_plane.sql",
+      "title": "SECURITY DEFINER function is executable by API roles"
+    },
+    {
+      "fingerprint": "8b7325516afedc6830848486",
+      "ruleId": "BND012",
+      "source": "deterministic",
+      "file": "migrations/20260720000000_managed_fireworks_review.sql",
+      "title": "SECURITY DEFINER function is executable by API roles"
+    },
+    {
+      "fingerprint": "fc199bf5e235ba6ae663d2c3",
+      "ruleId": "BND012",
+      "source": "deterministic",
+      "file": "migrations/20260720000000_managed_fireworks_review.sql",
+      "title": "SECURITY DEFINER function is executable by API roles"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ This is infrastructure, not another dashboard users must remember to visit. It l
 ## What exists now
 
 - Local CLI with deterministic final-state migration analysis.
-- Six high-signal Supabase/PostgreSQL security checks.
+- High-signal Supabase/PostgreSQL security checks for tables, policies, views, and privileged functions.
 - Pretty, JSON, and SARIF output.
 - Optional direct and consent-gated managed Fireworks policy review with advisory findings.
 - Automatic Supabase versus server-side PostgreSQL exposure profiles.

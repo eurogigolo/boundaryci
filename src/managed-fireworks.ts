@@ -1,5 +1,6 @@
 import type { BoundaryConfig } from "./config.js";
 import {
+  describeReviewCoverage,
   normalizeFireworksFindings,
   prepareReviewInput,
 } from "./fireworks.js";
@@ -176,6 +177,10 @@ export async function reviewWithManagedFireworks(
       .map((warning) => warning.slice(0, 500))
       .slice(0, 20)
     : [];
+  const coverage = describeReviewCoverage(reviewInput);
+  if (coverage && !safeWarnings.some((warning) => warning.includes("Newest migrations were prioritized"))) {
+    safeWarnings.push(coverage.slice(0, 500));
+  }
   if (normalized.discarded > 0) {
     safeWarnings.push(
       `Discarded ${normalized.discarded} malformed managed Fireworks finding${normalized.discarded === 1 ? "" : "s"}.`,

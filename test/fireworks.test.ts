@@ -1,6 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defaultConfig } from "../src/config.js";
-import { normalizeFireworksFindings, reviewWithFireworks } from "../src/fireworks.js";
+import {
+  describeReviewCoverage,
+  normalizeFireworksFindings,
+  prepareReviewInput,
+  reviewWithFireworks,
+} from "../src/fireworks.js";
 import type { SqlFile } from "../src/types.js";
 
 const originalApiKey = process.env.FIREWORKS_API_KEY;
@@ -12,6 +17,30 @@ afterEach(() => {
 });
 
 describe("Fireworks semantic review", () => {
+  it("prioritizes newest migrations when the review input is truncated", () => {
+    const files: SqlFile[] = [
+      {
+        path: "C:/repo/supabase/migrations/001_old.sql",
+        relativePath: "supabase/migrations/001_old.sql",
+        content: "select 'old';".repeat(10),
+      },
+      {
+        path: "C:/repo/supabase/migrations/002_new.sql",
+        relativePath: "supabase/migrations/002_new.sql",
+        content: "select 'new';".repeat(10),
+      },
+    ];
+
+    const prepared = prepareReviewInput(files, 100);
+
+    expect(prepared.files.map((file) => file.path)).toEqual([
+      "supabase/migrations/002_new.sql",
+    ]);
+    expect(prepared.partialFiles).toEqual(["supabase/migrations/002_new.sql"]);
+    expect(prepared.omittedFiles).toEqual(["supabase/migrations/001_old.sql"]);
+    expect(describeReviewCoverage(prepared)).toContain("Newest migrations were prioritized");
+  });
+
   it("redacts secrets and validates structured findings", async () => {
     process.env.FIREWORKS_API_KEY = "test-fireworks-key";
     const fakeSecret = ["sk", "super", "secret", "value", "123456789"].join("_");
@@ -34,13 +63,13 @@ describe("Fireworks semantic review", () => {
                   findings: [
                     {
                       title: "Tenant ID can be reassigned",
-                      description: "An update policy checks the old row only.",
+                      description: "The proposed-row predicate is broader than the existing-row tenant check.",
                       severity: "high",
                       confidence: "high",
                       file: "supabase/migrations/001.sql",
                       line: 2,
-                      evidence: "The update has no tenant-scoped WITH CHECK.",
-                      recommendation: "Add a WITH CHECK membership predicate.",
+                      evidence: "WITH CHECK (true) permits tenant_id reassignment.",
+                      recommendation: "Replace WITH CHECK (true) with the tenant membership predicate.",
                       tags: ["rls", "tenant-isolation"],
                     },
                   ],

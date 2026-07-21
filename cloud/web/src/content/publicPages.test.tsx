@@ -14,7 +14,7 @@ import { structuredDataForRoute } from "../lib/seo";
 
 describe("public discovery pages", () => {
   it("defines a unique, descriptive route for every indexable page", () => {
-    expect(PUBLIC_ROUTES).toHaveLength(23);
+    expect(PUBLIC_ROUTES).toHaveLength(29);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.path)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.title)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.description)).size).toBe(PUBLIC_ROUTES.length);

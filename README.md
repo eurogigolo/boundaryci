@@ -9,9 +9,9 @@
 
 Catch cross-tenant authorization mistakes before a SaaS migration reaches production.
 
-BoundaryCI is a local-first CLI for Supabase and PostgreSQL projects. It reconstructs the final security state from SQL migrations, applies deterministic tenant-isolation rules, and can optionally ask a Fireworks model to review policy interactions that static rules cannot reliably understand.
+BoundaryCI is a local-first CLI for Supabase and PostgreSQL projects. It reconstructs the final security state from SQL migrations, applies deterministic tenant-isolation rules, and can optionally add managed or bring-your-own-key Fireworks review for policy interactions that static rules cannot reliably understand.
 
-> **Current scope:** v0.2 is a migration scanner with optional Cloud history, not a penetration-testing guarantee. It does not connect to a live database or create synthetic tenants yet. The active two-tenant attack runner is the next product milestone.
+> **Current scope:** v0.4.0 is a migration scanner with optional Cloud history and consent-gated managed AI review, not a penetration-testing guarantee. It does not connect to a live database or create synthetic tenants yet. The active two-tenant attack runner is the next product milestone.
 
 ## Quick start
 
@@ -43,8 +43,14 @@ The example includes two deterministic failures and a subtler membership policy 
 | `BND004` | High | Every authenticated user receives unconditional row access |
 | `BND005` | High | `SECURITY DEFINER` function does not pin `search_path` |
 | `BND006` | High | `SECURITY DEFINER` function remains executable by `PUBLIC` |
+| `BND007` | High | Exposed view does not use `security_invoker` |
+| `BND008` | High | RLS policy trusts user-editable authentication metadata |
+| `BND009` | High | Materialized view is selectable through an exposed API schema |
+| `BND010` | High | Foreign table is reachable through an exposed API schema |
+| `BND011` | Medium | Default privileges automatically expose future relations or functions |
+| `BND012` | High | Exposed `SECURITY DEFINER` function remains executable by `anon` or `authenticated` |
 
-The parser follows migration order and accounts for later RLS changes, policy changes and drops, table drops, function replacement, and `PUBLIC` execute grants/revokes.
+The parser follows migration order and accounts for later RLS changes, policy changes and drops, regular/materialized view and foreign-table changes, relation grants and revokes, default privileges, overloaded function replacement, and execution privileges for `PUBLIC`, `anon`, and `authenticated`. In the Supabase profile, newly created relations begin with the conventional client-role privileges unless a matching earlier `ALTER DEFAULT PRIVILEGES` statement for the migration role removes them; explicit object-level grants and revokes then determine the final reachable state. BND007 follows [Supabase's view-security guidance](https://supabase.com/docs/guides/database/tables#view-security), while BND008 follows [Supabase's warning against authorization based on user-editable metadata](https://supabase.com/docs/guides/database/postgres/row-level-security#authjwt).
 
 ## Adopt an existing repository
 
@@ -78,14 +84,53 @@ Waivers require an owner, a reason of at least ten characters, and a valid `YYYY
 
 Use `--baseline-file` and `--waivers-file` to override their paths. An explicitly supplied path must exist, preventing a typo from silently disabling controls.
 
-## Fireworks semantic review
+## AI-assisted semantic review
 
-Deterministic checks should decide whether CI passes. The optional Fireworks review looks for higher-order mistakes such as:
+Deterministic checks remain BoundaryCI's default source of truth for CI. Optional Fireworks review adds a separately labeled, advisory layer for higher-order mistakes such as:
 
-- an update policy that authorizes the old row but allows `tenant_id` reassignment;
+- an update policy whose proposed-row predicate is broader than its existing-row tenant check, allowing `tenant_id` reassignment;
 - membership checks joined to the wrong tenant field;
-- authorization based on user-editable metadata;
+- multiple individually plausible policies whose combined effect opens a bypass;
 - policy and `SECURITY DEFINER` interactions that create a bypass.
+
+AI findings can be incomplete, incorrect, or misleading. Validate them against application behavior and active two-tenant tests before treating them as proven exposure.
+
+### Managed Fireworks review for BoundaryCI Cloud
+
+Managed review is the recommended path for Team, Growth, and Enterprise Cloud organizations. Customers do not need a Fireworks account or `FIREWORKS_API_KEY`; BoundaryCI keeps its provider credential in the managed server environment.
+
+An organization owner or administrator must first accept the managed-review disclosure in the BoundaryCI dashboard. After authorization, active repositories request managed review by default. Managers can disable the capability for the entire organization or an individual repository, and any workflow can opt out independently.
+
+The dashboard-generated GitHub Action workflow contains the public ingestion endpoint and references only the repository-bound BoundaryCI token:
+
+```yaml
+- uses: sir-gig/boundaryci@v0.3.0
+  with:
+    target: .
+    fail-on: high
+    managed-fireworks: "true"
+    upload: "true"
+    cloud-url: https://YOUR_PROJECT_REF.supabase.co/functions/v1/ingest-scan
+    cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}
+```
+
+Store `BOUNDARYCI_CLOUD_TOKEN` in GitHub under **Settings → Secrets and variables → Actions**. The generated workflow displays the exact `cloud-url`; it is a public endpoint, not a credential. Never paste the repository token or a Fireworks key into the committed YAML.
+
+When Cloud upload runs, the CLI first sends a metadata-only eligibility request authenticated by `BOUNDARYCI_CLOUD_TOKEN`. No migration text is included. Only after BoundaryCI confirms the paid plan, active subscription, organization authorization, and repository setting does the runner send locally redacted migration text to the managed endpoint.
+
+BoundaryCI forwards at most 80,000 characters to Fireworks and does not store the migration input. When the limit is reached, it prioritizes the newest migrations and reports the partially included and omitted files. It returns schema-validated findings to the local report; the subsequent minimized Cloud upload can preserve normalized findings, review status, model, and bounded operational metadata in repository history.
+
+Managed findings remain advisory by default. Fireworks unavailability produces a warning while deterministic scanning and Cloud upload continue. To skip managed review for one workflow while keeping deterministic scanning and Cloud history enabled:
+
+```yaml
+          managed-fireworks: "false"
+```
+
+You can also run the underlying CLI with `--no-managed-fireworks`. The managed path is available only with Cloud upload and a valid repository-bound token.
+
+### Bring your own Fireworks key (advanced)
+
+Use direct mode when your team prefers its own Fireworks account, model access, billing, and data settings. BoundaryCI does not proxy the inference request: migration text travels directly from your machine or GitHub runner to Fireworks. If `--upload` is also enabled, normalized findings can enter the minimized Cloud history payload, but BoundaryCI does not receive the migration input or raw provider response.
 
 In PowerShell:
 
@@ -94,35 +139,21 @@ $env:FIREWORKS_API_KEY = "your-key"
 npx.cmd boundaryci scan . --fireworks
 ```
 
-Fireworks findings are advisory by default. To include them in the CI exit decision:
+Direct findings are advisory by default. To include them in the CI exit decision:
 
 ```bash
 npx boundaryci scan . --fireworks --include-ai-in-exit-code
 ```
 
-If Fireworks is unavailable, the deterministic scan still completes and prints a warning. Use `--require-fireworks` when an unavailable semantic review must instead produce exit code `2`:
+If direct Fireworks review is unavailable, the deterministic scan still completes and prints a warning. Use `--require-fireworks` when an unavailable direct review must instead produce exit code `2`:
 
 ```bash
 npx boundaryci scan . --require-fireworks
 ```
 
-The integration requests schema-constrained JSON, validates every returned file and field, and redacts common token, JWT, password, secret, and API-key patterns before sending SQL. Redaction is defense-in-depth, not a guarantee: do not store production credentials in migrations. Enabling this option sends migration text to Fireworks under your Fireworks account and data settings.
+Direct review requests schema-constrained JSON, validates returned file references and fields, and redacts common token, JWT, password, secret, and API-key patterns before sending SQL. Redaction is defense in depth, not a guarantee: never store production credentials or unnecessary personal data in migrations.
 
-The default model is `accounts/fireworks/models/deepseek-v4-flash`. Override it with `--fireworks-model` or configuration if that model is unavailable to your account.
-
-### BoundaryCI managed Fireworks review
-
-Team, Growth, and Enterprise Cloud organizations can use BoundaryCI's managed Fireworks account instead of creating a provider key. An organization owner or administrator must first accept the managed-review disclosure in the dashboard. Each repository can then be disabled independently.
-
-When Cloud upload is enabled, the CLI first sends a metadata-only eligibility request authenticated by `BOUNDARYCI_CLOUD_TOKEN`. No migration text is included. Only after BoundaryCI confirms the paid plan, active subscription, organization authorization, and repository setting does the runner send locally redacted migration text to the managed endpoint. BoundaryCI forwards at most 80,000 characters to Fireworks, does not store the migration input, and returns validated findings for the local report and optional Cloud history.
-
-The managed review is requested by default by the Cloud Action workflow. Opt out for one workflow with:
-
-```yaml
-          managed-fireworks: "false"
-```
-
-Managed findings remain advisory by default, and deterministic scanning continues if the provider is unavailable. Direct `--fireworks` mode remains available for customers who prefer their own Fireworks account; BoundaryCI does not request both modes during one scan.
+The default direct-review model is `accounts/fireworks/models/deepseek-v4-flash`. Override it with `--fireworks-model` or configuration if that model is unavailable to your account. Direct `--fireworks` mode takes precedence when selected, so BoundaryCI never requests both direct and managed review during one scan.
 
 ## Configuration
 
@@ -155,6 +186,8 @@ npx boundaryci init
 }
 ```
 
+The `fireworks.enabled`, `fireworks.required`, and `fireworks.model` settings configure direct bring-your-own-key review. `fireworks.enabled: false` does not disable an authorized managed Cloud review. Use the dashboard controls, the repository setting, `--no-managed-fireworks`, or `managed-fireworks: "false"` for that purpose. `includeInExitCode` controls whether either kind of AI finding can affect the final scan exit decision; leave it `false` until your team has evaluated finding quality on its own repositories. `maxInputCharacters` caps prepared input locally, and managed review enforces an additional hard maximum of 80,000 characters.
+
 `ignoreTables` accepts fully qualified names and unqualified table names. Use it only for tables that are intentionally shared or inaccessible through the exposed API.
 
 ## Output and CI
@@ -170,7 +203,7 @@ npx boundaryci scan . --fail-on critical
 
 SARIF and GitHub output contain only `NEW` findings. Pretty and JSON output retain baseline and waived findings for auditability.
 
-This repository includes a published composite [`action.yml`](action.yml). Pin an exact release tag or commit SHA in production. `FIREWORKS_API_KEY` is required only for direct bring-your-own-key review when the `fireworks` input is `true`; managed review never exposes the Developer's provider key to GitHub.
+This repository includes a published composite [`action.yml`](action.yml). Pin an exact release tag or commit SHA in production. `FIREWORKS_API_KEY` is required only for direct bring-your-own-key review when the `fireworks` input is `true`; managed review never exposes BoundaryCI's provider key to GitHub.
 
 ```yaml
 name: Tenant isolation
@@ -208,9 +241,11 @@ In GitHub Actions, repository, commit, branch, and pull-request metadata are det
     fail-on: high
     managed-fireworks: "true"
     upload: "true"
-    cloud-url: ${{ secrets.BOUNDARYCI_CLOUD_URL }}
+    cloud-url: https://YOUR_PROJECT_REF.supabase.co/functions/v1/ingest-scan
     cloud-token: ${{ secrets.BOUNDARYCI_CLOUD_TOKEN }}
 ```
+
+Use the exact public `cloud-url` from the repository's permanent Setup guide. Only `BOUNDARYCI_CLOUD_TOKEN` belongs in GitHub's encrypted Actions secrets.
 
 Cloud upload is disabled by default. The history payload contains repository identity, commit context, summary counts, finding metadata, and short evidence/remediation snippets. BoundaryCI removes the absolute scan target and migration-file list, excludes local warnings, normalizes finding paths, and applies its common-secret redaction before history upload. It does not include complete migration files. Managed AI review has the separate, consent-gated transient migration processing described above. Redaction is defense-in-depth, so teams must still decide whether either data path is appropriate.
 

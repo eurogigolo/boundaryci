@@ -94,7 +94,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
         <a href={NPM_URL}><b>npm</b> Public package</a>
         <a href={MARKETPLACE_URL}><b>GitHub</b> Marketplace</a>
         <a href={GITHUB_URL}><b>Open</b> source CLI</a>
-        <span className="launch-trust-stat"><b>6</b> deterministic security rules</span>
+        <span className="launch-trust-stat"><b>Final-state</b> migration analysis</span>
       </section>
 
       <section className="launch-problem launch-section" id="product">
@@ -169,7 +169,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
           <span className="eyebrow">Deterministic + AI</span>
           <h2>Known failures get hard rules. Subtle policy interactions get a second review.</h2>
           <p>
-            BoundaryCI&apos;s six deterministic checks remain the reliable merge gate. Paid teams can
+            BoundaryCI&apos;s high-confidence deterministic checks remain the reliable merge gate. Paid teams can
             authorize managed Fireworks AI to examine how tenant keys, memberships, RLS policies,
             and privileged functions work together—without managing another provider key.
           </p>

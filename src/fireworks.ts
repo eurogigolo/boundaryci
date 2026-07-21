@@ -18,6 +18,8 @@ export interface PreparedReviewFile {
 export interface PreparedReviewInput {
   files: PreparedReviewFile[];
   truncated: boolean;
+  omittedFiles: string[];
+  partialFiles: string[];
 }
 
 const responseSchema = {
@@ -79,30 +81,65 @@ export function prepareReviewInput(
   files: SqlFile[],
   maxCharacters: number,
 ): PreparedReviewInput {
-  const prepared: PreparedReviewFile[] = [];
+  const preparedNewestFirst: PreparedReviewFile[] = [];
+  const omittedFiles: string[] = [];
+  const partialFiles: string[] = [];
   let used = 0;
-  let truncated = false;
+  const newestFirst = [...files].reverse();
 
-  for (const file of files) {
+  for (let index = 0; index < newestFirst.length; index += 1) {
+    const file = newestFirst[index];
+    if (!file) continue;
     const header = `\n--- FILE: ${file.relativePath} ---\n`;
     const redacted = redactSecrets(file.content);
     const remaining = maxCharacters - used - header.length;
     if (remaining <= 0) {
-      truncated = true;
+      omittedFiles.push(
+        ...newestFirst.slice(index).reverse().map((candidate) => candidate.relativePath),
+      );
       break;
     }
 
     if (redacted.length > remaining) {
-      prepared.push({ path: file.relativePath, content: redacted.slice(0, remaining) });
-      truncated = true;
+      preparedNewestFirst.push({ path: file.relativePath, content: redacted.slice(0, remaining) });
+      partialFiles.push(file.relativePath);
+      omittedFiles.push(
+        ...newestFirst.slice(index + 1).reverse().map((candidate) => candidate.relativePath),
+      );
       break;
     }
 
-    prepared.push({ path: file.relativePath, content: redacted });
+    preparedNewestFirst.push({ path: file.relativePath, content: redacted });
     used += header.length + redacted.length;
   }
 
-  return { files: prepared, truncated };
+  return {
+    files: preparedNewestFirst.reverse(),
+    truncated: omittedFiles.length > 0 || partialFiles.length > 0,
+    omittedFiles,
+    partialFiles,
+  };
+}
+
+export function describeReviewCoverage(input: PreparedReviewInput): string | undefined {
+  if (!input.truncated) return undefined;
+  const details: string[] = ["Newest migrations were prioritized."];
+  if (input.omittedFiles.length > 0) {
+    const examples = input.omittedFiles.slice(0, 5)
+      .map((file) => file.length > 120 ? `${file.slice(0, 117)}...` : file)
+      .join(", ");
+    const remaining = input.omittedFiles.length - Math.min(5, input.omittedFiles.length);
+    details.push(
+      `Omitted ${input.omittedFiles.length} older file${input.omittedFiles.length === 1 ? "" : "s"}: ${examples}${remaining > 0 ? `, and ${remaining} more` : ""}.`,
+    );
+  }
+  if (input.partialFiles.length > 0) {
+    const partial = input.partialFiles
+      .map((file) => file.length > 120 ? `${file.slice(0, 117)}...` : file)
+      .join(", ");
+    details.push(`Partially included: ${partial}.`);
+  }
+  return details.join(" ");
 }
 
 function reviewContent(input: PreparedReviewInput): string {
@@ -268,8 +305,9 @@ export async function reviewWithFireworks(
   const reviewInput = prepareReviewInput(files, config.fireworks.maxInputCharacters);
   const warnings: string[] = [];
   if (reviewInput.truncated) {
+    const coverage = describeReviewCoverage(reviewInput);
     warnings.push(
-      `Fireworks input was limited to ${config.fireworks.maxInputCharacters.toLocaleString()} characters. Increase fireworks.maxInputCharacters or scan fewer migrations for complete semantic coverage.`,
+      `Fireworks input was limited to ${config.fireworks.maxInputCharacters.toLocaleString()} characters. ${coverage ?? ""} Increase fireworks.maxInputCharacters or scan fewer migrations for complete semantic coverage.`,
     );
   }
 
@@ -291,7 +329,7 @@ export async function reviewWithFireworks(
         {
           role: "system",
           content:
-            "You are a senior PostgreSQL and Supabase authorization reviewer. Find semantic tenant-isolation vulnerabilities in SQL migrations that an untrusted anonymous user or ordinary authenticated tenant member can exploit. Focus on cross-tenant reads, writes, deletes, tenant reassignment, unsafe membership joins, mutable authorization attributes, permissive helper functions, SECURITY DEFINER abuse, and interactions across policies. Do not assume compromise of the database owner, service role, Stripe webhook, organization owner, or organization administrator. A SECURITY DEFINER function is not a vulnerability by itself; report it only when its grants and validation create a concrete cross-tenant path for an untrusted caller. Do not report intentional owner/admin settings, subscription controls, defense-in-depth suggestions, style issues, or risks that merely restate what a trusted role could do. Do not repeat obvious missing-RLS or literal USING(true)/WITH CHECK(true) findings; deterministic rules handle those. Trace grants and predicates before reporting, cite only supplied files and line numbers, and omit a finding unless there is a concrete attacker action and affected tenant boundary. Return only a valid JSON object matching the requested schema, with no markdown or commentary. Return at most 8 concise, non-duplicate findings and at most 8 tags per finding. Return an empty findings array when evidence is insufficient.",
+            "You are a senior PostgreSQL and Supabase authorization reviewer. Find semantic tenant-isolation vulnerabilities in SQL migrations that an untrusted anonymous user or ordinary authenticated tenant member can exploit. Focus on cross-tenant reads, writes, deletes, tenant reassignment, unsafe membership joins, mutable authorization attributes, permissive helper functions, SECURITY DEFINER abuse, and interactions across policies. Do not assume compromise of the database owner, service role, Stripe webhook, organization owner, or organization administrator. A SECURITY DEFINER function is not a vulnerability by itself; report it only when its grants and validation create a concrete cross-tenant path for an untrusted caller. Do not report intentional owner/admin settings, subscription controls, defense-in-depth suggestions, style issues, or risks that merely restate what a trusted role could do. Do not repeat missing-RLS, literal USING(true)/WITH CHECK(true), exposed regular/materialized/foreign relation, unsafe default-privilege, or user-editable auth-metadata findings; deterministic rules handle those. Trace grants and predicates before reporting, cite only supplied files and line numbers, and omit a finding unless there is a concrete attacker action and affected tenant boundary. Return only a valid JSON object matching the requested schema, with no markdown or commentary. Return at most 8 concise, non-duplicate findings and at most 8 tags per finding. Return an empty findings array when evidence is insufficient.",
         },
         {
           role: "user",
