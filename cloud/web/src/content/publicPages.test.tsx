@@ -110,6 +110,8 @@ describe("public discovery pages", () => {
     const action = renderPublicRoute("/github-action/", "/");
     expect(action).toContain("Store the token as a GitHub secret");
     expect(action).toContain("Reference the secret from the workflow");
+    expect(action).toContain("sir-gig/boundaryci@v0.4.0");
+    expect(action).not.toContain("sir-gig/boundaryci@v0.3.0");
 
     const managedAi = renderPublicRoute("/docs/managed-ai/", "/");
     expect(managedAi).toContain("Authorize once in the dashboard");
