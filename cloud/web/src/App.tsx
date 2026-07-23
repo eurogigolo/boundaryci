@@ -6,6 +6,7 @@ import { Dashboard } from "./components/Dashboard";
 import { PasswordRecovery } from "./components/PasswordRecovery";
 import { PublicRoute } from "./components/PublicRoute";
 import { getPublicPage } from "./content/publicPages";
+import { checkoutIntentFromSearch } from "./lib/billing";
 import { cloudConfigurationError, supabase } from "./lib/supabase";
 
 function isPasswordRecoveryUrl(): boolean {
@@ -21,6 +22,7 @@ export function App() {
   const publicUrl = import.meta.env.BASE_URL;
   const publicPath = window.location.pathname;
   const requestedAuthMode = new URLSearchParams(window.location.search).get("auth");
+  const checkoutIntent = checkoutIntentFromSearch(window.location.search);
   const authMode = requestedAuthMode === "signup" || requestedAuthMode === "signin"
     ? requestedAuthMode
     : null;
@@ -72,7 +74,15 @@ export function App() {
   if (session && recoveringPassword) {
     return <PasswordRecovery onComplete={() => setRecoveringPassword(false)} />;
   }
-  if (session) return <Dashboard session={session} />;
-  if (authMode) return <AuthScreen initialMode={authMode} publicUrl={publicUrl} />;
+  if (session) return <Dashboard session={session} checkoutIntent={checkoutIntent} />;
+  if (authMode) {
+    return (
+      <AuthScreen
+        initialMode={authMode}
+        publicUrl={publicUrl}
+        checkoutIntent={checkoutIntent}
+      />
+    );
+  }
   return <PublicRoute baseUrl={publicUrl} pathname={publicPath} />;
 }

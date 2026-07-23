@@ -43,7 +43,12 @@ Do not start with a general-purpose security scanner. Own tenant isolation for S
 - Growth: active two-tenant tests, scheduled production-safe checks, evidence export, and SSO.
 - Enterprise: self-hosted runner, custom policy packs, retention controls, and support.
 
-Before expanding the hosted dashboard, recruit five design partners and install the CLI in their real repositories. The buying signal is not praise; it is a team allowing BoundaryCI to become a required merge check and asking for centralized history, waivers, or audit evidence. The Cloud ingestion slice should be deployed first so those installs produce real product data with explicit customer consent.
+Before expanding the hosted dashboard, recruit five design partners through the public
+[design-partner program](https://boundaryci.com/design-partners/) and install the CLI in their real
+repositories. The buying signal is not praise; it is a team allowing BoundaryCI to become a
+required merge check and asking for centralized history, waivers, or audit evidence. The Cloud
+ingestion slice should be deployed first so those installs produce real product data with explicit
+customer consent.
 
 ## Defensibility
 

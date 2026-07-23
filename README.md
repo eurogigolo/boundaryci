@@ -13,6 +13,11 @@ BoundaryCI is a local-first CLI for Supabase and PostgreSQL projects. It reconst
 
 > **Current scope:** v0.4.0 is a migration scanner with optional Cloud history and consent-gated managed AI review, not a penetration-testing guarantee. It does not connect to a live database or create synthetic tenants yet. The active two-tenant attack runner is the next product milestone.
 
+> **Design partners:** BoundaryCI is selecting five multi-tenant SaaS teams for a no-cost,
+> founder-led install and baseline review. See the
+> [design-partner program](https://boundaryci.com/design-partners/) to evaluate it in a real
+> Supabase or PostgreSQL repository.
+
 ## Quick start
 
 ```bash

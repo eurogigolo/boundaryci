@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { BILLING_PLANS, checkoutPlan, isStripeHostedUrl, planName } from "./billing";
+import {
+  BILLING_PLANS,
+  checkoutIntentFromSearch,
+  checkoutPlan,
+  isStripeHostedUrl,
+  planName,
+  searchWithoutCheckoutIntent,
+} from "./billing";
 
 describe("billing catalog", () => {
   it("keeps paid capacity above the free allowance", () => {
@@ -14,6 +21,29 @@ describe("billing catalog", () => {
     expect(planName("enterprise")).toBe("Enterprise");
     expect(checkoutPlan("team")).toBe("team");
     expect(checkoutPlan("trial")).toBeNull();
+  });
+
+  it("preserves a paid-plan choice through account creation", () => {
+    expect(checkoutIntentFromSearch("?auth=signup&plan=team&interval=annual")).toEqual({
+      plan: "team",
+      interval: "annual",
+    });
+    expect(checkoutIntentFromSearch("?plan=growth")).toEqual({
+      plan: "growth",
+      interval: "monthly",
+    });
+    expect(checkoutIntentFromSearch("?plan=trial")).toBeNull();
+    expect(checkoutIntentFromSearch("?plan=enterprise")).toBeNull();
+  });
+
+  it("consumes checkout intent while preserving unrelated query state", () => {
+    expect(
+      searchWithoutCheckoutIntent(
+        "?auth=signup&plan=team&interval=annual&campaign=design-partner",
+      ),
+    ).toBe("?campaign=design-partner");
+    expect(searchWithoutCheckoutIntent("?plan=growth&interval=monthly")).toBe("");
+    expect(searchWithoutCheckoutIntent("?billing=success&plan=team")).toBe("?billing=success");
   });
 
   it("accepts only Stripe-hosted redirect URLs", () => {

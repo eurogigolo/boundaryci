@@ -21,6 +21,7 @@ export function PublicNavigation({
     { href: "/supabase-rls-scanner/", label: "Product" },
     { href: "/ai-supabase-rls-review/", label: "AI Review" },
     { href: "/guides/tenant-isolation-testing/", label: "Guides" },
+    { href: "/design-partners/", label: "Partners" },
     { href: "/rules/", label: "Rules" },
     { href: "/security/", label: "Security" },
     { href: "/docs/quickstart/", label: "Docs" },
@@ -70,6 +71,7 @@ export function PublicFooter({ baseUrl }: { baseUrl: string }) {
           <a href={publicHref(baseUrl, "/docs/quickstart/")}>Quickstart</a>
           <a href={publicHref(baseUrl, "/docs/managed-ai/")}>Managed AI review</a>
           <a href={publicHref(baseUrl, "/guides/tenant-isolation-testing/")}>Tenant-isolation guide</a>
+          <a href={publicHref(baseUrl, "/design-partners/")}>Design partners</a>
           <a href={GITHUB_URL}>GitHub</a>
         </section>
         <section>

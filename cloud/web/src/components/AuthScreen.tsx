@@ -1,5 +1,6 @@
 import { useRef, useState, type FormEvent } from "react";
 import { captchaTokenOptions, turnstileSiteKey } from "../lib/captcha";
+import { planName, type CheckoutIntent } from "../lib/billing";
 import { errorMessage } from "../lib/errors";
 import { requireSupabase } from "../lib/supabase";
 import { Brand } from "./Brand";
@@ -11,10 +12,12 @@ export function AuthScreen({
   initialMode = "signin",
   publicUrl,
   captchaSiteKey = turnstileSiteKey,
+  checkoutIntent = null,
 }: {
   initialMode?: AuthMode;
   publicUrl: string;
   captchaSiteKey?: string;
+  checkoutIntent?: CheckoutIntent | null;
 }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -26,7 +29,11 @@ export function AuthScreen({
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const captchaRef = useRef<TurnstileWidgetHandle>(null);
   const captchaEnabled = Boolean(captchaSiteKey);
-  const authRedirectUrl = new URL(import.meta.env.BASE_URL, window.location.origin).toString();
+  const authRedirectUrl = new URL(import.meta.env.BASE_URL, window.location.origin);
+  if (checkoutIntent) {
+    authRedirectUrl.searchParams.set("plan", checkoutIntent.plan);
+    authRedirectUrl.searchParams.set("interval", checkoutIntent.interval);
+  }
 
   function resetCaptcha() {
     if (!captchaEnabled) return;
@@ -46,7 +53,7 @@ export function AuthScreen({
         const { data, error: authError } = await client.auth.signUp({
           email: email.trim(),
           password,
-          options: { emailRedirectTo: authRedirectUrl, ...captchaOptions },
+          options: { emailRedirectTo: authRedirectUrl.toString(), ...captchaOptions },
         });
         if (authError) throw authError;
         if (!data.session) {
@@ -78,7 +85,7 @@ export function AuthScreen({
     try {
       const captchaOptions = captchaTokenOptions(captchaSiteKey, captchaToken);
       const { error: resetError } = await requireSupabase().auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: authRedirectUrl,
+        redirectTo: authRedirectUrl.toString(),
         ...captchaOptions,
       });
       if (resetError) throw resetError;
@@ -128,7 +135,9 @@ export function AuthScreen({
           <p className="muted">
             {mode === "signin"
               ? "Sign in to review your latest tenant-boundary runs."
-              : "Start with one organization and your first GitHub repository."}
+              : checkoutIntent
+                ? `Create your workspace, then review the ${planName(checkoutIntent.plan)} plan before checkout.`
+                : "Start with one organization and your first GitHub repository."}
           </p>
 
           <div className="auth-tabs" role="tablist" aria-label="Authentication mode">

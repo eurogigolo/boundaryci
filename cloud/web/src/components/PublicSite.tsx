@@ -1,4 +1,4 @@
-import { BILLING_PLANS } from "../lib/billing";
+import { BILLING_PLANS, checkoutPlan } from "../lib/billing";
 import { HOME_FAQS } from "../content/publicPages";
 import {
   GITHUB_URL,
@@ -11,6 +11,12 @@ import {
 
 export function PublicSite({ baseUrl }: { baseUrl: string }) {
   const signUpUrl = publicHref(baseUrl, "?auth=signup");
+  const paidPlanUrl = (plan: "team" | "growth") =>
+    publicHref(baseUrl, `?auth=signup&plan=${plan}&interval=monthly`);
+  const signupUrlForPlan = (plan: (typeof BILLING_PLANS)[number]["key"]) => {
+    const paidPlan = checkoutPlan(plan);
+    return paidPlan ? paidPlanUrl(paidPlan) : signUpUrl;
+  };
 
   return (
     <main className="launch-site">
@@ -95,6 +101,20 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
         <a href={MARKETPLACE_URL}><b>GitHub</b> Marketplace</a>
         <a href={GITHUB_URL}><b>Open</b> source CLI</a>
         <span className="launch-trust-stat"><b>Final-state</b> migration analysis</span>
+      </section>
+
+      <section className="launch-partner-callout" aria-label="BoundaryCI design partner program">
+        <div>
+          <span className="eyebrow">Founder-led pilot</span>
+          <h2>Shipping a multi-tenant Supabase SaaS?</h2>
+          <p>
+            BoundaryCI is selecting five design partners for a no-cost install, baseline review,
+            and structured tenant-isolation workflow evaluation.
+          </p>
+        </div>
+        <a className="button button-secondary" href={publicHref(baseUrl, "/design-partners/")}>
+          See the design-partner program <span>→</span>
+        </a>
       </section>
 
       <section className="launch-problem launch-section" id="product">
@@ -260,7 +280,7 @@ export function PublicSite({ baseUrl }: { baseUrl: string }) {
               </ul>
               <a
                 className={`button ${plan.featured ? "button-primary" : "button-secondary"} button-full`}
-                href={signUpUrl}
+                href={signupUrlForPlan(plan.key)}
               >
                 {plan.key === "trial" ? "Start scanning free" : `Choose ${plan.name}`}
               </a>

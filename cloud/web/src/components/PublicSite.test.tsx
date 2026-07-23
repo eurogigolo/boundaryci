@@ -33,7 +33,14 @@ describe("BoundaryCI public launch site", () => {
 
   it("routes public conversion actions into the Cloud signup", () => {
     expect(markup).toContain('href="/?auth=signup"');
+    expect(markup).toContain('href="/?auth=signup&amp;plan=team&amp;interval=monthly"');
+    expect(markup).toContain('href="/?auth=signup&amp;plan=growth&amp;interval=monthly"');
     expect(markup).toContain('href="/?auth=signin"');
+  });
+
+  it("offers a concrete design-partner path for qualified teams", () => {
+    expect(markup).toContain("selecting five design partners");
+    expect(markup).toContain('href="/design-partners/"');
   });
 
   it("explains the GitHub token and workflow without exposing a credential", () => {

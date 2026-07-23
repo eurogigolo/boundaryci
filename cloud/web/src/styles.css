@@ -368,6 +368,7 @@ input:focus, select:focus { border-color: #6855ce; box-shadow: 0 0 0 3px rgba(13
 .pricing-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 15px; }
 .pricing-card { position: relative; display: flex; flex-direction: column; min-height: 490px; padding: 27px; border: 1px solid var(--border); border-radius: 12px; background: linear-gradient(145deg, #121620, #0f121b); }
 .pricing-card.featured { border-color: rgba(139,116,255,.7); box-shadow: 0 0 0 1px rgba(139,116,255,.25), 0 25px 60px rgba(68,48,160,.14); }
+.pricing-card.selected { outline: 2px solid rgba(139,116,255,.72); outline-offset: 3px; }
 .pricing-badge { position: absolute; top: -12px; right: 19px; padding: 5px 9px; border: 1px solid rgba(139,116,255,.55); border-radius: 999px; color: #ddd7ff; background: #30265c; font-size: 8px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
 .pricing-card h2 { margin: 15px 0 4px; font-size: 39px; letter-spacing: -1.8px; }
 .pricing-card h2 small { margin-left: 3px; color: #777f92; font-size: 11px; font-weight: 600; letter-spacing: 0; }
@@ -463,6 +464,10 @@ html { scroll-behavior: smooth; }
 .launch-trust a, .launch-trust-stat { display: flex; align-items: center; gap: 8px; color: #71798d; font-size: 9px; font-weight: 700; }
 .launch-trust a b { color: #b6bbc9; font-size: 13px; }
 .launch-trust-stat b { color: var(--purple-bright); font-family: var(--font-mono); font-size: 17px; }
+.launch-partner-callout { width: min(1300px, calc(100% - 96px)); display: flex; align-items: center; justify-content: space-between; gap: 35px; margin: 34px auto 0; padding: 27px 30px; border: 1px solid rgba(139,116,255,.28); border-radius: 12px; background: linear-gradient(105deg, rgba(117,84,244,.11), rgba(16,19,29,.96) 55%); }
+.launch-partner-callout h2 { margin: 7px 0 6px; font-size: 20px; letter-spacing: -.7px; }
+.launch-partner-callout p { max-width: 780px; margin: 0; color: #8c93a5; font-size: 11px; line-height: 1.65; }
+.launch-partner-callout .button { flex: 0 0 auto; }
 .launch-section { width: min(1300px, calc(100% - 96px)); margin: 0 auto; padding: 125px 0; }
 .launch-section-heading { max-width: 830px; }
 .launch-section-heading h2, .launch-security h2, .launch-ai h2 { margin: 13px 0 18px; font-size: clamp(35px, 4vw, 54px); line-height: 1.1; letter-spacing: -2.5px; }
@@ -704,6 +709,7 @@ html { scroll-behavior: smooth; }
   .launch-proof-card { display: none; }
   .launch-trust { width: calc(100% - 48px); flex-wrap: wrap; justify-content: flex-start; padding-block: 28px; }
   .launch-trust > span:first-child { flex-basis: 100%; }
+  .launch-partner-callout { width: calc(100% - 48px); align-items: flex-start; flex-direction: column; }
   .launch-section { width: calc(100% - 48px); padding-block: 95px; }
   .launch-workflow, .launch-pricing { width: 100%; padding-inline: 24px; }
   .launch-steps { grid-template-columns: 1fr; }
@@ -782,6 +788,8 @@ html { scroll-behavior: smooth; }
   .terminal-summary strong { flex-basis: 100%; margin-left: 0; }
   .launch-trust { width: calc(100% - 36px); }
   .launch-trust-stat { flex-basis: 100%; }
+  .launch-partner-callout { width: calc(100% - 36px); padding: 24px 20px; }
+  .launch-partner-callout .button { width: 100%; }
   .launch-section { width: calc(100% - 36px); }
   .launch-workflow, .launch-pricing { width: 100%; padding-inline: 18px; }
   .launch-section-heading h2, .launch-security h2, .launch-ai h2 { letter-spacing: -1.7px; }

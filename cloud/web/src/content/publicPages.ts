@@ -3,6 +3,7 @@ export const CONTENT_DATE = "2026-07-18";
 export const BILLING_READINESS_DATE = "2026-07-19";
 const FINDING_VISIBILITY_DATE = "2026-07-20";
 export const AI_MARKETING_DATE = "2026-07-20";
+export const DESIGN_PARTNER_DATE = "2026-07-23";
 
 export type PublicPageKind =
   | "product"
@@ -52,6 +53,7 @@ export interface PublicPage {
   sections: PageSection[];
   related: RelatedPage[];
   ctaLabel: string;
+  ctaHref?: string;
   faqs?: PublicFaq[];
   ctaHeading?: string;
   ctaDescription?: string;
@@ -119,7 +121,7 @@ export const HOME_ROUTE: PublicRouteMetadata = {
     "Catch Supabase and PostgreSQL tenant-isolation flaws with deterministic CI checks and optional managed AI review before they reach production.",
   heading: "Stop one customer from seeing another customer's data.",
   publishedAt: CONTENT_DATE,
-  modifiedAt: AI_MARKETING_DATE,
+  modifiedAt: DESIGN_PARTNER_DATE,
   faqs: HOME_FAQS,
 };
 
@@ -291,6 +293,78 @@ const pages: PublicPage[] = [
     ],
     related: [sharedRelated.quickstart, sharedRelated.rules, sharedRelated.security],
     ctaLabel: "Scan a Supabase repository",
+  },
+  {
+    path: "/design-partners/",
+    kind: "product",
+    title: "BoundaryCI Design Partner Program for SaaS Teams",
+    description:
+      "Apply for a founder-led BoundaryCI install, baseline review, and structured evaluation in a real multi-tenant Supabase or PostgreSQL repository.",
+    eyebrow: "Design partner program",
+    heading: "Help prove the tenant-isolation workflow on a real SaaS repository.",
+    introduction:
+      "BoundaryCI is selecting five multi-tenant SaaS teams for a no-cost, founder-led install and baseline review. The goal is to measure setup friction, false positives, remediation usefulness, and whether the check earns a place in the required pull-request workflow.",
+    publishedAt: DESIGN_PARTNER_DATE,
+    modifiedAt: DESIGN_PARTNER_DATE,
+    sections: [
+      {
+        id: "fit",
+        heading: "Who is a strong fit",
+        paragraphs: [
+          "The useful design partner is close enough to production that tenant-isolation mistakes matter and can evaluate BoundaryCI against real migration history. Supabase is the initial focus; PostgreSQL teams with SQL migrations and shared customer tables are also relevant.",
+        ],
+        bullets: [
+          "A multi-tenant SaaS product serving external customers or approaching a committed launch",
+          "Supabase or PostgreSQL authorization expressed in version-controlled SQL migrations",
+          "A team willing to run BoundaryCI in report-only mode before deciding whether to require it",
+          "An engineer who can join one setup session and one follow-up conversation",
+        ],
+      },
+      {
+        id: "pilot",
+        heading: "What the pilot includes",
+        paragraphs: [
+          "BoundaryCI will help install the current GitHub Action, review initial deterministic findings, create a baseline only after the findings are understood, and evaluate the managed AI layer when the team explicitly consents to that data flow.",
+        ],
+        bullets: [
+          "Founder-led repository setup and workflow configuration",
+          "Initial finding and baseline review",
+          "Direct handling of false positives and unclear remediation",
+          "A written summary of setup time, finding quality, and next workflow improvements",
+        ],
+        note: "The pilot is an engineering-product evaluation. It is not a penetration test, compliance certification, managed security service, or guarantee that an application is secure.",
+      },
+      {
+        id: "exchange",
+        heading: "What BoundaryCI asks in return",
+        paragraphs: [
+          "Design partners provide candid evidence rather than a testimonial obligation. The essential signal is whether the scanner finds useful issues, avoids merge noise, and becomes trustworthy enough to remain in the pull-request path.",
+        ],
+        bullets: [
+          "Permission to measure setup time and aggregate finding outcomes",
+          "Specific feedback on false positives, missed risks, and remediation clarity",
+          "A decision after the pilot: remove it, keep it report-only, or make it a required check",
+          "Optional permission for an attributed case study only after separate written approval",
+        ],
+      },
+      {
+        id: "apply",
+        heading: "Apply without disclosing sensitive information",
+        paragraphs: [
+          "The application opens a public GitHub issue. Share only your stack, product stage, approximate repository count, and a non-confidential description of the current review workflow. Do not post repository names, customer information, credentials, migrations, or suspected vulnerabilities.",
+          "Qualified teams can coordinate private repository details outside the public issue after the initial fit check.",
+        ],
+      },
+    ],
+    related: [
+      sharedRelated.quickstart,
+      { href: "/github-action/", label: "GitHub Action setup", description: "See the workflow the pilot installs and evaluates." },
+      sharedRelated.security,
+    ],
+    ctaLabel: "Apply as a design partner",
+    ctaHref: "https://github.com/sir-gig/boundaryci/issues/new?template=design-partner.yml",
+    ctaHeading: "Put BoundaryCI in front of a real tenant boundary.",
+    ctaDescription: "Apply with non-confidential details. The first five qualified teams receive a founder-led install and structured workflow review.",
   },
   {
     path: "/guides/tenant-isolation-testing/",

@@ -24,4 +24,17 @@ describe("BoundaryCI Cloud authentication", () => {
     expect(markup).toContain('aria-label="Security check"');
     expect(markup).toContain('type="submit" disabled=""');
   });
+
+  it("preserves a selected paid plan in the confirmation redirect", () => {
+    vi.stubGlobal("window", { location: { origin: "https://boundaryci.com" } });
+    const markup = renderToStaticMarkup(
+      <AuthScreen
+        initialMode="signup"
+        publicUrl="/"
+        captchaSiteKey=""
+        checkoutIntent={{ plan: "team", interval: "annual" }}
+      />,
+    );
+    expect(markup).toContain("review the Team plan before checkout");
+  });
 });

@@ -2,6 +2,10 @@ import type { PublicPage } from "../content/publicPages";
 import { RULE_SUMMARIES } from "../content/publicPages";
 import { GITHUB_URL, PublicFooter, PublicNavigation, publicHref } from "./PublicNavigation";
 
+function destinationHref(baseUrl: string, href: string): string {
+  return /^https?:\/\//.test(href) ? href : publicHref(baseUrl, href);
+}
+
 function categoryLabel(page: PublicPage): string {
   if (page.kind === "legal") return "Company";
   if (page.kind === "guide") return "Guides";
@@ -55,9 +59,11 @@ export function PublicDocumentPage({
   const categoryUrl = categoryHref(page);
   const currentBreadcrumbLabel = page.ruleId
     ?? (page.kind === "rule-index" || page.kind === "security" ? category : page.eyebrow);
-  const ctaHref = page.kind === "security"
-    ? GITHUB_URL
-    : publicHref(baseUrl, "?auth=signup");
+  const ctaHref = page.ctaHref
+    ? destinationHref(baseUrl, page.ctaHref)
+    : page.kind === "security"
+      ? GITHUB_URL
+      : publicHref(baseUrl, "?auth=signup");
 
   return (
     <main className="launch-site document-site">

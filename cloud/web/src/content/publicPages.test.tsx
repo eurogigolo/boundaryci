@@ -14,7 +14,7 @@ import { structuredDataForRoute } from "../lib/seo";
 
 describe("public discovery pages", () => {
   it("defines a unique, descriptive route for every indexable page", () => {
-    expect(PUBLIC_ROUTES).toHaveLength(29);
+    expect(PUBLIC_ROUTES).toHaveLength(30);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.path)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.title)).size).toBe(PUBLIC_ROUTES.length);
     expect(new Set(PUBLIC_ROUTES.map((route) => route.description)).size).toBe(PUBLIC_ROUTES.length);
@@ -88,6 +88,15 @@ describe("public discovery pages", () => {
 
   it("makes every document route resolvable from the typed content catalog", () => {
     for (const page of PUBLIC_PAGES) expect(getPublicPage(page.path)).toEqual(page);
+  });
+
+  it("publishes a qualified design-partner acquisition path", () => {
+    const page = getPublicPage("/design-partners/");
+    const markup = renderPublicRoute("/design-partners/", "/");
+    expect(page?.sections).toHaveLength(4);
+    expect(markup).toContain("Apply as a design partner");
+    expect(markup).toContain("issues/new?template=design-partner.yml");
+    expect(markup).toContain("Do not post repository names");
   });
 
   it("publishes first-party billing policies without a conversion prompt", () => {

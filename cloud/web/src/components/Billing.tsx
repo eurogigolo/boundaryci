@@ -5,6 +5,7 @@ import {
   checkoutPlan,
   isStripeHostedUrl,
   planName,
+  type CheckoutPlan,
   type CheckoutInterval,
 } from "../lib/billing";
 import { requireSupabase } from "../lib/supabase";
@@ -15,6 +16,8 @@ interface BillingProps {
   monthlyUsage: number;
   canManage: boolean;
   result: string | null;
+  selectedPlan?: CheckoutPlan | null;
+  initialInterval?: CheckoutInterval;
   onRefresh: () => void;
 }
 
@@ -35,8 +38,16 @@ async function functionError(caught: unknown): Promise<string> {
   return errorMessage(caught);
 }
 
-export function Billing({ organization, monthlyUsage, canManage, result, onRefresh }: BillingProps) {
-  const [interval, setInterval] = useState<CheckoutInterval>("monthly");
+export function Billing({
+  organization,
+  monthlyUsage,
+  canManage,
+  result,
+  selectedPlan = null,
+  initialInterval = "monthly",
+  onRefresh,
+}: BillingProps) {
+  const [interval, setInterval] = useState<CheckoutInterval>(initialInterval);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const hasPaidHistory = organization.plan !== "trial";
@@ -116,6 +127,11 @@ export function Billing({ organization, monthlyUsage, canManage, result, onRefre
       {result === "portal" && (
         <div className="alert alert-success billing-alert">Billing changes are synchronized from Stripe.</div>
       )}
+      {selectedPlan && organization.plan === "trial" && !result && (
+        <div className="alert alert-success billing-alert">
+          {planName(selectedPlan)} selected. Review the plan below; Stripe opens only after you confirm.
+        </div>
+      )}
       {error && <div className="alert alert-error billing-alert">{error}</div>}
 
       <section className="billing-summary">
@@ -180,7 +196,10 @@ export function Billing({ organization, monthlyUsage, canManage, result, onRefre
           const current = organization.plan === plan.key;
           const price = interval === "annual" ? plan.annualMonthlyPrice : plan.monthlyPrice;
           return (
-            <article className={`pricing-card ${plan.featured ? "featured" : ""}`} key={plan.key}>
+            <article
+              className={`pricing-card ${plan.featured ? "featured" : ""} ${selectedPlan === plan.key ? "selected" : ""}`}
+              key={plan.key}
+            >
               {plan.featured && <span className="pricing-badge">Built for SaaS teams</span>}
               <span className="eyebrow">{plan.name}</span>
               <h2>{price === 0 ? "$0" : `$${price}`}<small> USD/month</small></h2>

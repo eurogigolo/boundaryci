@@ -2,6 +2,19 @@
 
 All notable changes to BoundaryCI are documented here.
 
+## Unreleased
+
+### Added
+
+- Public design-partner program and qualified GitHub intake form for founder-led repository
+  installs.
+
+### Changed
+
+- Preserve Team or Growth plan intent through account confirmation and open the matching billing
+  view without starting checkout automatically.
+- Link the design-partner program from the website, README, and product brief.
+
 ## 0.4.0 - 2026-07-20
 
 ### Added

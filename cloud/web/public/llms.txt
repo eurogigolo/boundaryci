@@ -9,6 +9,7 @@ The scanner runs locally or inside GitHub Actions without database credentials. 
 ## Start here
 
 - Public product page: https://boundaryci.com/
+- Design partner program: https://boundaryci.com/design-partners/
 - Supabase RLS scanner: https://boundaryci.com/supabase-rls-scanner/
 - BoundaryCI quickstart: https://boundaryci.com/docs/quickstart/
 - Managed Fireworks AI review: https://boundaryci.com/docs/managed-ai/

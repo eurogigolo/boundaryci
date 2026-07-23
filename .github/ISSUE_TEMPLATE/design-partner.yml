@@ -1,0 +1,57 @@
+name: BoundaryCI design-partner application
+description: Apply for a founder-led BoundaryCI install and tenant-isolation workflow review.
+title: "[Design partner]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This application is public. Do not include credentials, customer names or data, proprietary migrations, security findings, or private repository details. A GitHub handle is enough for initial contact.
+
+        BoundaryCI is looking for multi-tenant SaaS teams that use Supabase or PostgreSQL and can evaluate the scanner in a real repository. The pilot includes a no-cost install and baseline review in exchange for direct setup and false-positive feedback. It is not a penetration test or security certification.
+  - type: dropdown
+    id: stack
+    attributes:
+      label: Primary database stack
+      options:
+        - Supabase
+        - PostgreSQL without Supabase
+        - Both
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Product stage
+      options:
+        - Shipping to paying customers
+        - Live beta with external customers
+        - Pre-launch with a committed launch date
+    validations:
+      required: true
+  - type: input
+    id: repositories
+    attributes:
+      label: Approximate repository count
+      description: A number is enough; do not list private repository names.
+      placeholder: "2"
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Tenant-isolation workflow
+      description: Briefly describe how your team reviews RLS or tenant-boundary changes today. Keep it non-confidential.
+      placeholder: We review Supabase SQL migrations in pull requests and run...
+    validations:
+      required: true
+  - type: checkboxes
+    id: participation
+    attributes:
+      label: Pilot participation
+      options:
+        - label: We can install BoundaryCI in report-only mode in a real repository.
+          required: true
+        - label: We can provide a 30-minute setup session and a 30-minute follow-up.
+          required: true
+        - label: We understand this public form must not contain confidential or security-sensitive material.
+          required: true

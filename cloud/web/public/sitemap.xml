@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://boundaryci.com/</loc><lastmod>2026-07-20</lastmod></url>
+  <url><loc>https://boundaryci.com/</loc><lastmod>2026-07-23</lastmod></url>
+  <url><loc>https://boundaryci.com/design-partners/</loc><lastmod>2026-07-23</lastmod></url>
   <url><loc>https://boundaryci.com/supabase-rls-scanner/</loc><lastmod>2026-07-18</lastmod></url>
   <url><loc>https://boundaryci.com/guides/tenant-isolation-testing/</loc><lastmod>2026-07-18</lastmod></url>
   <url><loc>https://boundaryci.com/guides/test-supabase-rls/</loc><lastmod>2026-07-18</lastmod></url>
